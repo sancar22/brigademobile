@@ -35,7 +35,8 @@ export default class About extends Component {
        appState: AppState.currentState,
        location:null,
        errorMessage: null, 
-       online: false   
+       online: false, 
+       selected: null
     })
      
     this.register = this.register.bind(this);
@@ -99,11 +100,11 @@ async componentWillMount(){
     })
  }
 
-
- componentWillUnmount(){
+ 
+ async componentWillUnmount(){
     this.listener.remove();
     AppState.removeEventListener('change', this.handleAppStateChange)
-    this.startLocationUpdatesAsync.remove()
+    await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME)
  }
  
  listen = ({origin,data}) => {
@@ -150,9 +151,14 @@ async componentWillMount(){
  }
 
  async signOutUser() {
-   try {
+   try { 
+      let currentUser =  firebase.auth().currentUser.uid.toString();
+      firebase.database().ref('Users/' + currentUser).update({ 
+      online:false,
+      selected: false
+   })  
        await firebase.auth().signOut();
-       Actions.Home()
+       Actions.home()
    } catch (error) {
        console.log(error);
    }
@@ -184,7 +190,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: Constants.statusBarHeight,
+    padding: 10,
     backgroundColor: '#ecf0f1',
   },
   paragraph: {
