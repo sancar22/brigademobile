@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect, useCallback} from 'react';
 import {
   Container,
   Platform,
@@ -22,48 +22,28 @@ import Modal from 'react-native-modal';
 import * as firebase from 'firebase';
 import {Notifications} from 'expo';
 import * as TaskManager from 'expo-task-manager';
+import {useSelector, useDispatch} from 'react-redux'
+import {notifshow} from '../actions/index'
+import _ from 'lodash'
 
 
+function About () {
+   const brigada = useSelector(state => state.brigada)
+   const dispatch = useDispatch()
 
-const LOCATION_TASK_NAME = 'background-location-task';
-
-export default class About extends Component {
-  constructor(props){
-    super(props)
-
-    this.state = ({
-       appState: AppState.currentState,
-       location:null,
-       errorMessage: null, 
-       online: false, 
-       selected: null
-    })
-     
-    this.register = this.register.bind(this);
-    this.handleAppStateChange = this.handleAppStateChange.bind(this);
- }
- 
- async _getLocationAsync(){
-   let  currentUser = firebase.auth().currentUser.uid.toString();
-   const {status1} = await Permissions.askAsync(Permissions.LOCATION);
-   console.log(status1)
-      if (status1 !== 'granted') {
-         this.setState({
-         errorMessage: 'Permission to access location was denied',
-         });
-      }
-      let location = await Location.getCurrentPositionAsync({})
-      this.setState(location) 
-      console.log(location.coords.latitude, location.coords.longitude)
-     firebase.database().ref('Users/' + currentUser).update({ 
-        Latitud: location.coords.latitude,
-        Longitud: location.coords.longitude
-     })  
-   
-};
-
- async register(){
+   register();
+  firebase.auth().onAuthStateChanged((user)=>{
+     if(!user){
+        Actions.home()
+     }
+  })
+ async function register(){
     let  currentUser = firebase.auth().currentUser.uid.toString();
+    firebase.database().ref('Users/' + currentUser).on("value", snapshot =>{
+      const info = snapshot.val().notif
+      dispatch(notifshow(info))
+   })
+   
     let emai = firebase.auth().currentUser.email.toString();
     const {status} = await Permissions.askAsync(Permissions.NOTIFICATIONS);
     console.log(status)
@@ -73,84 +53,30 @@ export default class About extends Component {
  }
     let token = await Notifications.getExpoPushTokenAsync();
    console.log(token)
-// POST the token in firabase.
+    console.log(brigada, brigada)
    firebase.database().ref('Users/' + currentUser).update({
    Expotoken: token,
    Email: emai,
    UID: currentUser,
-   online: true
+   online: true,
+   selected:false
    });
-   //firebase.database().ref('/Users/').on('value', snapshot => {
-   // const firabasedata = snapshot.val();
-    //console.log(firabasedata);                
-  //});
 }
+useEffect(()=>{
+   this.listener = Notifications.addListener(listen)
+   return()=>{
+      this.listener.remove()
+   }
+},[])
 
-async componentWillMount(){
-   this.register();
-   this._getLocationAsync();
-   this.listener =  Notifications.addListener(this.listen)
-}
 
-  async componentDidMount(){
-    console.log("Hello")
-    AppState.addEventListener('change', this.handleAppStateChange)
-    await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
-      accuracy: Location.Accuracy.Balanced, timeInterval:1000, distanceInterval:5
-    })
- }
 
- 
- async componentWillUnmount(){
-    this.listener.remove();
-    AppState.removeEventListener('change', this.handleAppStateChange)
-    await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME)
- }
- 
- listen = ({origin,data}) => {
+ const listen = ({origin,data}) => {
     console.log(origin,data)
-    Vibration.vibrate(10000)
-    let nombre = data.name;
-    let apellido = data.ape;
-    if(origin === 'received'){  // Para evitar doble received y selected en origin
-    setTimeout(function(){
-
-       Vibration.vibrate(10000)
-       Alert.alert(
-          nombre,
-          apellido,
-          [
-             {
-                text: "Rechazar",
-                onPress: () => console.log("Rejected")
-             },
-             {
-                text: "Aceptar",
-                onPress: () => console.log("Accepted")
-             }
-          ],
-          {cancelable: false}
-       )
-  
-     }, 5000);    // Timeout para que cuando se abra la app le llegue la  notificación
-    }
-
-    
-    
+   
  }
 
- handleAppStateChange = (nextAppState) => {
-    if (
-       this.state.appState.match(/inactive|background/) &&
-       nextAppState === 'active'
-     ) {
-       console.log('App has come to the foreground!');
-     }
-     this.setState({appState: nextAppState});
-     console.log(this.state.appState)
- }
-
- async signOutUser() {
+  async function signOutUser() {
    try { 
       let currentUser =  firebase.auth().currentUser.uid.toString();
       firebase.database().ref('Users/' + currentUser).update({ 
@@ -164,22 +90,42 @@ async componentWillMount(){
    }
 }
 
- render(){
+ 
     
  
   
  return (
    
    <View style={styles.justifyContent}>
-   <Button style={{margin:35}} 
+   {brigada ?   
+   <View>
+   <Button
     full
     rounded
     success 
-    title="logout" onPress={() => this.signOutUser()} />
-   <Text style={styles.paragraph}></Text>
-   </View>
+    title="Rechazar" onPress={() => Actions.forgot()} 
+    />
+     <Button
+    full
+    rounded
+    success 
+    title="Aceptar" onPress={() => Actions.about()} 
+    />
+    </View> : 
+    <View> 
+      <Button style={{margin:35}} 
+    full
+    rounded
+    success 
+    title="logout" onPress={() => signOutUser()} 
+    />
+    </View>
+    }
+      
+    </View>
+  
  )
-}
+
 }
 
 
@@ -200,21 +146,4 @@ const styles = StyleSheet.create({
   }
 });
 
-TaskManager.defineTask('background-location-task' , ({ data, error }) => {
-   
-   if (error) {
-     // Error occurred - check `error.message` for more details.
-     return;
-   }
-      if (data) {
-         const { locations } = data;
-         // do something with the locations captured in the background
-         console.log('locations',locations[0].coords.latitude,locations[0].coords.longitude)
-         let  currentUser = firebase.auth().currentUser.uid.toString();
-         firebase.database().ref('Users/' + currentUser).update({ 
-            Latitud: locations[0].coords.latitude,
-            Longitud: locations[0].coords.longitude
-         })  
-       }
-   
- });
+export default About

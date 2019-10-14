@@ -1,23 +1,13 @@
-import {createStore, applyMiddleware} from 'redux';
-import {thunkMiddleware} from 'redux-thunk'
-import { Reducer } from 'react-native-router-flux';
+import brigadaReducer from './brigada'
+import {combineReducers} from 'redux'
 
 
-// 
-// initial states
 
-const initialState ={
-
-
-};
-
-//
-
-
-const Reducer = (state= initialState, action )=>{
-return state;
+const allReducers = combineReducers({
+    brigada: brigadaReducer
 }
+)
 
-const store = createStore(Reducer, applyMiddleware(thunkMiddleware));
+export default allReducers
 
-export  {store};
+
