@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect} from "react";
 import { Actions, Reducer } from "react-native-router-flux"; //npm i react-native-router-flux --save
 import { config } from "../routes/Config";
 import * as firebase1 from "firebase"; // npm install --save react-native-firebase
@@ -22,11 +22,16 @@ function Home() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-
+  let authFlag = true;
   firebase1.auth().onAuthStateChanged((user)=>{
-   if(user){
-      Actions.about()
-   }
+    if(authFlag){
+      authFlag = false
+      if(user){
+        Actions.replace('about')
+     }
+    }
+   
+    
 })
   const loginUser = (email, password) => {
     try {
@@ -36,12 +41,20 @@ function Home() {
         .signInWithEmailAndPassword(email.trim(), password)
         .then(() => {
           setLoading(false);
-          Actions.about(); // If user is registered it will go to about page
+          Actions.replace('about'); // If user is registered it will go to about page
         });
     } catch (error) {
       console.log(error.toString());
     }
   };
+
+  useEffect(()=>{
+       console.log("Mounted Login")
+       
+       return () => {
+         console.log("Unmounted Login")
+       }
+  },[])
 
   const signUpUser = (email, password) => {
     try {
