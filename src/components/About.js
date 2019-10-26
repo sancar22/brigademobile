@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect, useCallback } from "react";
+import React, { Component, useState, useEffect, useCallback, useLayoutEffect } from "react";
 import {
   Container,
   Platform,
@@ -25,57 +25,43 @@ import {calcWidth, calcHeight} from '../HelpFunctions'
 
 function About() {
   const brigada = useSelector(state => state.brigada); //Variable que controlará la visibilidad de la notificación
-  const info = useSelector(state => state.info)
-  
+  const infoOnline = useSelector(state => state.info)
+  const caso = useSelector(state=>state.case)
   const dispatch = useDispatch();
-  let {height, width} = Dimensions.get('window')
-  console.log(height,width)
-
-  useEffect(() => {
-    console.log("Mounted About")
-    
-    let currentUser = firebase.auth().currentUser.uid.toString();
-    this.listener = Notifications.addListener(listen);
-    firebase
-    .database()
-    .ref("Users/" + currentUser)
-    .on("value", snapshot => {
-      const info = snapshot.val().notif;
-     const infoTot = snapshot.val()
-      dispatch(notifshow(info));
-      dispatch(fillInfo(infoTot))
-
-    });
-    register();
-    return () => {
-      console.log("Unmounted About")
-      this.listener.remove();
-    };
-  }, []);
-
-  useEffect(()=>{
-      
-   console.log(info)
-
-  }, [info])
-
-
-
-
+   
   firebase.auth().onAuthStateChanged(user => {
     if (!user) {
       Actions.replace('home');
     }
   });
 
-
-  async function register() {
-    let currentUser = firebase.auth().currentUser.uid.toString();
-
-    //Controlador para mostrar la notificación
+  useEffect(() => {
+    console.log("Mounted About")
+    initializer();
+    //updateUser()
+    register();
+    this.listener = Notifications.addListener(listen);
+    return () => {
+      console.log("Unmounted About")
+      this.listener.remove();
+    };
+  }, []);
   
-    ////////////////////////////////////////////////////////////////////
-     
+function initializer(){
+  // When component mounts, there will be a listener for notif sent
+  let currentUser = firebase.auth().currentUser.uid.toString();
+  firebase
+    .database()
+    .ref("Users/" + currentUser).child("notif")
+    .on("value", snapshot => { 
+      console.log(snapshot.val())
+      const info = snapshot.val()
+      dispatch(notifshow(info));
+    });
+}
+
+  async function register() { // se pide expoToken, se actualiza y se pone online en firebase
+    let currentUser = firebase.auth().currentUser.uid.toString();
     let emai = firebase.auth().currentUser.email.toString();
     const { status } =  await  Permissions.askAsync(Permissions.NOTIFICATIONS);
     console.log(status);
@@ -85,7 +71,6 @@ function About() {
     }
     let token =  await Notifications.getExpoPushTokenAsync();
     console.log(token);
-    console.log(brigada, brigada);
     firebase
       .database()
       .ref("Users/" + currentUser)
@@ -95,25 +80,38 @@ function About() {
         UID: currentUser,
         online: true,
         selected: false
-
-        
-
       });
   }
 
 
-  
   const listen = ({ origin, data }) => {
-    console.log(origin, data);
-    if(origin === 'received'){
-      Vibration.vibrate(10000);
-      ranTime();
-      
-      
-      
+    console.log(origin, data); 
+    let currentUser = firebase.auth().currentUser.uid.toString();
+ 
+      if(origin === 'received'){
+        Vibration.vibrate(10000);
+           
+        firebase
+        .database()
+        .ref("Users/" + currentUser)
+        .once("value", snapshot => {
+        const userInfo = snapshot.val()
+        const notifs = snapshot.val().receivedNotif +1 // aumentar notificaciones recibidas
 
-    }
-    
+        firebase.database().ref("Casos/" + currentUser + userInfo.receivedNotif) // Para updatear la variable de Redux de caso
+        .once("value", snapshot =>{
+          const caseInfo = snapshot.val()
+          dispatch(fillPlace(caseInfo.lugar))
+          dispatch(fillCode(caseInfo.codigo))
+          dispatch(fillDescription(caseInfo.descripcion))
+          dispatch(fillCategory(caseInfo.categoria))
+        })
+        firebase.database().ref("Users/" + currentUser).update({receivedNotif:notifs})
+    // se updatea +1 
+     })
+
+        firebase.database().ref("Users/"+currentUser).update({notif:true})
+        }   
   };
 
   async function signOutUser() {
@@ -137,46 +135,31 @@ function About() {
   const rejectCase = () =>{
    let currentUser = firebase.auth().currentUser.uid.toString();
    firebase
-      .database()
-      .ref("Users/" + currentUser)
-      .transaction((data)=>{
-         data.rejected++
-         return data;
-      })
-  firebase.database().ref("Users/" +currentUser).update({notif:false})
-  
+   .database()
+   .ref("Users/" + currentUser)
+   .once("value",snapshot=>{
+      const newRejected = snapshot.val().rejected + 1
+      firebase.database().ref("Users/"+currentUser).update({rejected:newRejected})
+   })
+  firebase.database().ref("Users/" +currentUser).update({notif:false}) 
+  // Para cuando rechace la notificación se oculte la notificación
   }
-
-  const ranTime = () =>{
-    let currentUser = firebase.auth().currentUser.uid.toString();
-    firebase
-       .database()
-       .ref("Users/" + currentUser)
-       .transaction((data)=>{
-          data.receivedNotif++
-          return data;
-       })
-   
-   }
-
   
   const acceptCase = () =>{
    let currentUser = firebase.auth().currentUser.uid.toString();
    firebase
       .database()
       .ref("Users/" + currentUser)
-      .transaction((data)=>{
-         data.accepted++
-         return data;
+      .once("value",snapshot=>{
+         const newAccepted = snapshot.val().accepted + 1
+         firebase.database().ref("Users/"+currentUser).update({accepted:newAccepted})
       })
       firebase.database().ref("Users/" +currentUser).update({notif:false})
-    
-      Actions.replace('caso')
-  
+      Actions.replace('caso') // Si acepta se va a la ventana de casos
   }
 
   return (
-    <View>
+    <View >
       {brigada ? (
       
          
