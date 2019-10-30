@@ -87,10 +87,17 @@ function initializer(){
   const listen = ({ origin, data }) => {
     console.log(origin, data); 
     let currentUser = firebase.auth().currentUser.uid.toString();
- 
+     
       if(origin === 'received'){
         Vibration.vibrate(10000);
-           
+        firebase.database().ref("Users/"+currentUser).once("value", snapshot=>{
+          let notif = snapshot.val().receivedNotif
+          firebase.database().ref("Casos/"+currentUser+notif).update({causaRechazo:'Tiempo agotado'})
+        })
+        setTimeout(()=>{
+          
+            firebase.database().ref("Users/"+ currentUser).update({notif:false})
+        },10000)
         firebase
         .database()
         .ref("Users/" + currentUser)
@@ -139,9 +146,9 @@ function initializer(){
    .ref("Users/" + currentUser)
    .once("value",snapshot=>{
       const newRejected = snapshot.val().rejected + 1
-      firebase.database().ref("Users/"+currentUser).update({rejected:newRejected})
+      firebase.database().ref("Users/"+currentUser).update({rejected:newRejected, notif:false})
    })
-  firebase.database().ref("Users/" +currentUser).update({notif:false}) 
+  Actions.replace('reject')
   // Para cuando rechace la notificación se oculte la notificación
   }
   
@@ -152,20 +159,44 @@ function initializer(){
       .ref("Users/" + currentUser)
       .once("value",snapshot=>{
          const newAccepted = snapshot.val().accepted + 1
-         firebase.database().ref("Users/"+currentUser).update({accepted:newAccepted})
+         let received = snapshot.val().receivedNotif -1
+         let tI = Date.now()/1000;
+         firebase.database().ref("Casos/" + currentUser + received.toString())
+         .update({tInicial:tI, causaRechazo:''})
+         firebase.database().ref("Users/"+currentUser).update({accepted:newAccepted, ocupado:true})
       })
+
       firebase.database().ref("Users/" +currentUser).update({notif:false})
+      Vibration.cancel()
       Actions.replace('caso') // Si acepta se va a la ventana de casos
   }
 
   return (
-    <View >
+    <View style={{flex:1}}>
       {brigada ? (
+         <View style={{flex:1, backgroundColor:'rgba(248, 245, 245, 0.8)', paddingLeft:calcWidth(2), paddingRight:calcWidth(2), paddingTop:calcHeight(5), paddingBottom:calcHeight(5)}}>
+
+      <View style={{flex:1,backgroundColor:'#e4d8b4', flexDirection:'column', position:'relative', borderRadius:10}}>
+      <View style={styles.caseContainer}>
+           <Text style={{...styles.textCase,paddingTop:calcHeight(5)}}>Código:</Text>
+           <View style={{...styles.caseBoxes,height:calcHeight(5)}}>
+           <Text style={{...styles.textCase,paddingTop:calcHeight(1)}}>{caso.codigo}</Text>
+           </View>
+           <Text style={{...styles.textCase,paddingTop:calcHeight(1.5)}}>Lugar Emergencia:</Text>
+           <View style={{...styles.caseBoxes, height:calcHeight(5)}}>
+            <Text style={{...styles.textCase,paddingTop:calcHeight(1)}}>{caso.lugarEmergencia}</Text>
+           </View>
+           <Text style={{...styles.textCase,paddingTop:calcHeight(1.5)}}>Categoría:</Text>
+           <View style={{...styles.caseBoxes,height:calcHeight(5)}}>
+            <Text style={{...styles.textCase,paddingTop:calcHeight(1)}}>{caso.categoria}</Text>
+           </View>
+           <Text style={{...styles.textCase,paddingTop:calcHeight(1.5)}}>Descripción:</Text>
+           <View style={{...styles.caseBoxes,height:calcHeight(30)}}>
+            <Text style={{...styles.textCase,paddingTop:calcHeight(1), textAlign:'justify'}}>{caso.descAdicional}</Text>
+           </View>
+      </View>
       
-         
-
-
-        <View style={{flex:1, flexDirection:'row',justifyContent:'space-evenly', position:'relative'}}>
+      <View style={{flex:1, flexDirection:'row', justifyContent:'space-evenly', position:'relative'}}>  
           <TouchableOpacity 
           style={{...styles.touchOpBut,backgroundColor:'red'}}  
           onPress={rejectCase}>
@@ -177,6 +208,10 @@ function initializer(){
           onPress={acceptCase}>
              <Text style={styles.button}>ACEPTAR</Text>
           </TouchableOpacity>
+       </View>  
+        </View>
+
+       
         </View>
 
 
@@ -220,9 +255,27 @@ const styles = StyleSheet.create({
    flexDirection:'column',
    height: calcHeight(6), 
    width: calcWidth(30), 
-   top: calcHeight(75),
+   top: calcHeight(3),
    position:"relative", 
    borderRadius:10
+  },
+  caseBoxes: {
+    position:'relative', 
+    backgroundColor:'rgba(248, 245, 245, 0.8)',
+    borderRadius:10, 
+    borderColor:'black',
+    paddingLeft: calcWidth(1.5),
+    paddingRight: calcWidth(1.5)
+  },
+  caseContainer:{
+    flex:4, 
+    flexDirection:'column', 
+    position:'relative',
+    paddingLeft: calcWidth(3),
+    paddingRight: calcWidth(3)
+  },
+  textCase: {
+      fontWeight: 'bold'
   }
 });
 
