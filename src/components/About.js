@@ -1,18 +1,12 @@
-import React, { Component, useState, useEffect, useCallback, useLayoutEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Container,
-  Platform,
   Text,
   View,
   StyleSheet,
   Button,
-  Linking,
-  AppState,
-  AsyncStorage,
   Vibration,
   Alert,
   TouchableOpacity, 
-  Dimensions
 } from "react-native";
 import { Actions, Reducer } from "react-native-router-flux";
 import * as Permissions from "expo-permissions";
