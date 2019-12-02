@@ -1,17 +1,8 @@
-import React, { useState, useEffect} from "react";
-import { Actions, Reducer } from "react-native-router-flux"; //npm i react-native-router-flux --save
+import React, { useState } from "react";
+import { Actions } from "react-native-router-flux"; //npm i react-native-router-flux --save
 import { config } from "../routes/Config";
 import * as firebase1 from "firebase"; // npm install --save react-native-firebase
-import {
-  Container,
-  Content,
-  Header,
-  Form,
-  Input,
-  Item,
-  Button,
-  Label
-} from "native-base";
+import { Container, Form, Input, Item, Button, Label } from "native-base";
 import { StyleSheet, Text, ActivityIndicator } from "react-native";
 
 // This is the login Window
@@ -23,16 +14,14 @@ function Home() {
   const [loading, setLoading] = useState(false);
 
   let authFlag = true;
-  firebase1.auth().onAuthStateChanged((user)=>{
-    if(authFlag){
-      authFlag = false
-      if(user){
-        Actions.replace('about')
-     }
+  firebase1.auth().onAuthStateChanged(user => {
+    if (authFlag) {
+      authFlag = false;
+      if (user) {
+        Actions.replace("about");
+      }
     }
-   
-    
-})
+  });
   const loginUser = (email, password) => {
     try {
       setLoading(true);
@@ -41,20 +30,12 @@ function Home() {
         .signInWithEmailAndPassword(email.trim(), password)
         .then(() => {
           setLoading(false);
-          Actions.replace('about'); // If user is registered it will go to about page
+          Actions.replace("about"); // If user is registered it will go to about page
         });
     } catch (error) {
       console.log(error.toString());
     }
   };
-
-  useEffect(()=>{
-       console.log("Mounted Login")
-       
-       return () => {
-         console.log("Unmounted Login")
-       }
-  },[])
 
   const signUpUser = (email, password) => {
     try {
@@ -130,8 +111,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     justifyContent: "center",
-    padding: 10
-  }
+    padding: 10,
+  },
 });
 
 export default Home;
