@@ -23,8 +23,10 @@ import {
 } from "../actions/index";
 import _ from "lodash";
 import { calcWidth, calcHeight } from "../HelpFunctions";
+import fb from "../routes/ConfigFire";
 
 function About() {
+    const infoUser = useSelector(state => state.info);
     const brigada = useSelector(state => state.brigada); //Variable que controlará la visibilidad de la notificación
     const caso = useSelector(state => state.case);
     const dispatch = useDispatch();
@@ -35,7 +37,9 @@ function About() {
             Actions.replace("home");
         }
     });
-
+    if (infoUser.ocupado) {
+        Actions.replace("caso");
+    }
     useEffect(() => {
         console.log("Mounted About");
         initializer();
@@ -59,9 +63,15 @@ function About() {
             .ref("Users/" + currentUser)
             .child("notif")
             .on("value", snapshot => {
-                console.log(snapshot.val());
                 const info = snapshot.val();
                 dispatch(notifshow(info));
+            });
+        firebase
+            .database()
+            .ref("Users/" + currentUser)
+            .on("value", snapshot => {
+                const info = snapshot.val();
+                dispatch(fillInfo(info));
             });
     }
 
