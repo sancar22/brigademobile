@@ -1,20 +1,19 @@
 import React, { useState } from "react";
 import { Actions } from "react-native-router-flux"; //npm i react-native-router-flux --save
 import { config } from "../routes/Config";
-import * as firebase1 from "firebase"; // npm install --save react-native-firebase
+import * as firebase from "firebase"; // npm install --save react-native-firebase
 import { Container, Form, Input, Item, Button, Label } from "native-base";
 import { StyleSheet, Text, ActivityIndicator } from "react-native";
 
 // This is the login Window
 
-firebase1.initializeApp(config);
 function Home() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
 
     let authFlag = true;
-    firebase1.auth().onAuthStateChanged(user => {
+    firebase.auth().onAuthStateChanged(user => {
         if (authFlag) {
             authFlag = false;
             if (user) {
@@ -25,7 +24,7 @@ function Home() {
     const loginUser = (email, password) => {
         try {
             setLoading(true);
-            firebase1
+            firebase
                 .auth()
                 .signInWithEmailAndPassword(email.trim(), password)
                 .then(() => {
@@ -43,7 +42,7 @@ function Home() {
                 alert("Please enter at least 6 characters");
                 return;
             }
-            firebase1
+            firebase
                 .auth()
                 .createUserWithEmailAndPassword(email.trim(), password); // Register user in firebase
         } catch (error) {
@@ -103,7 +102,6 @@ function Home() {
                 </Button>
                 {loading && <ActivityIndicator />}
             </Form>
-            <Text>{email}</Text>
         </Container>
     );
 }

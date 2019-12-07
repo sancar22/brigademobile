@@ -5,6 +5,7 @@ import * as firebase from "firebase";
 import RadioForm from "react-native-radio-form";
 import Textarea from "react-native-textarea";
 import { calcWidth, calcHeight } from "../HelpFunctions";
+import fb from "../routes/ConfigFire";
 
 const mockData = [
     {
@@ -46,19 +47,12 @@ function Reject() {
 
         if (showButton) {
             if (bullet.value === "th") {
-                firebase
-                    .database()
-                    .ref("Users/" + currentUser)
-                    .once("value", snapshot => {
-                        const userInfo = snapshot.val();
-                        const notifs = snapshot.val().receivedNotif - 1; // aumentar notificaciones recibidas
-
-                        firebase
-                            .database()
-                            .ref("Casos/" + currentUser + notifs) // Para updatear la variable de Redux de caso
-                            .update({ causaRechazo: textArea.trim() });
-                    });
-                Actions.replace("about");
+                if (textArea.length > 0) {
+                    fb.fillTextArea(currentUser, textArea);
+                    Actions.replace("about");
+                } else {
+                    alert("¡Escriba algo!");
+                }
             } else {
                 firebase
                     .database()

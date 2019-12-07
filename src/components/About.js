@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Audio } from "expo-av";
 import {
     Text,
     View,
@@ -22,15 +23,20 @@ import {
     fillInfo,
 } from "../actions/index";
 import _ from "lodash";
-import { calcWidth, calcHeight } from "../HelpFunctions";
 import fb from "../routes/ConfigFire";
+import NotificationContainer from "./NotificationContainer";
+import BackgroundTimer from "react-native-background-timer";
 
 function About() {
     const infoUser = useSelector(state => state.info);
     const brigada = useSelector(state => state.brigada); //Variable que controlará la visibilidad de la notificación
     const caso = useSelector(state => state.case);
+    const [sound, setSound] = useState(null);
     const dispatch = useDispatch();
-    const [email, setEmail] = useState("");
+    let currentUser = firebase
+        .auth()
+        .currentUser.email.toString()
+        .split(".")[0];
 
     firebase.auth().onAuthStateChanged(user => {
         if (!user) {
@@ -43,54 +49,38 @@ function About() {
     useEffect(() => {
         console.log("Mounted About");
         initializer();
-        //updateUser()
         register();
         this.listener = Notifications.addListener(listen);
+        Audio.setAudioModeAsync({
+            staysActiveInBackground: true,
+            allowsRecordingIOS: false,
+            interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
+            playsInSilentModeIOS: true,
+            interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
+            playThroughEarpieceAndroid: false,
+            shouldDuckAndroid: true,
+        });
         return () => {
             console.log("Unmounted About");
-            this.listener.remove();
+            this.listener.remove(); // OJO ACÁ CUANDO HAGAMOS MÚLTIPLES PESTAÑAS
         };
     }, []);
 
     function initializer() {
         // When component mounts, there will be a listener for notif sent
-        let currentUser = firebase
-            .auth()
-            .currentUser.email.toString()
-            .split(".")[0];
-        firebase
-            .database()
-            .ref("Users/" + currentUser)
-            .child("notif")
-            .on("value", snapshot => {
-                const info = snapshot.val();
-                dispatch(notifshow(info));
-            });
+        console.log("UPDATED14");
         firebase
             .database()
             .ref("Users/" + currentUser)
             .on("value", snapshot => {
-                const info = snapshot.val();
-                dispatch(fillInfo(info));
+                const allUserInfo = snapshot.val();
+                dispatch(notifshow(allUserInfo.notif));
+                dispatch(fillInfo(allUserInfo));
             });
     }
 
     async function register() {
-        // se pide expoToken, se actualiza y se pone online en firebase
-        let currentUser = firebase
-            .auth()
-            .currentUser.email.toString()
-            .split(".")[0];
         let currentUID = firebase.auth().currentUser.uid.toString();
-
-        firebase
-            .database()
-            .ref("Users/" + currentUser)
-            .once("value", snapshot => {
-                const info = snapshot.val();
-                setEmail(info.Email);
-            });
-        //let emai = firebase.auth().currentUser.email.toString();
         const { status } = await Permissions.askAsync(
             Permissions.NOTIFICATIONS
         );
@@ -101,42 +91,35 @@ function About() {
         }
         let token = await Notifications.getExpoPushTokenAsync();
         console.log(token);
-        firebase
-            .database()
-            .ref("Users/" + currentUser)
-            .update({
-                Expotoken: token,
-                UID: currentUID,
-                online: true,
-                selected: false,
-            });
+        fb.addRemainingData(currentUser, currentUID, token);
     }
 
-    const listen = ({ origin, data }) => {
+    const listen = async ({ origin, data }) => {
         console.log(origin, data);
-        let currentUser = firebase
-            .auth()
-            .currentUser.email.toString()
-            .split(".")[0];
 
         if (origin === "received") {
             Vibration.vibrate(10000);
-            firebase
-                .database()
-                .ref("Users/" + currentUser)
-                .once("value", snapshot => {
-                    let notif = snapshot.val().receivedNotif;
-                    firebase
-                        .database()
-                        .ref("Casos/" + currentUser + notif)
-                        .update({ causaRechazo: "Tiempo agotado" });
-                });
-            /* setTimeout(() => {
-        firebase
-          .database()
-          .ref("Users/" + currentUser)
-          .update({ notif: false });
-      }, 10000);  // for avoiding notification always on*/
+            try {
+                const {
+                    sound: soundObject,
+                    status,
+                } = await Audio.Sound.createAsync(
+                    {
+                        uri:
+                            "https://firebasestorage.googleapis.com/v0/b/brigadaun.appspot.com/o/audios%2Falarm.wav?alt=media&token=a2c80767-bae0-47b8-8dae-3b1a7af590df",
+                    },
+                    { shouldPlay: true }
+                );
+                setSound(soundObject);
+            } catch (error) {
+                console.log(error);
+            }
+
+            BackgroundTimer.setInterval(() => {
+                console.log("Hello");
+            }, 5000);
+
+            fb.setCustomRejectCause(currentUser);
             firebase
                 .database()
                 .ref("Users/" + currentUser)
@@ -169,71 +152,22 @@ function About() {
     };
 
     async function signOutUser() {
-        try {
-            let currentUser = firebase
-                .auth()
-                .currentUser.email.toString()
-                .split(".")[0];
-            firebase
-                .database()
-                .ref("Users/" + currentUser)
-                .update({
-                    online: false,
-                    selected: false,
-                });
-
-            await firebase.auth().signOut();
-            Actions.replace("home");
-        } catch (error) {
-            console.log(error);
-        }
+        fb.setOnlineSelected(currentUser);
+        await firebase.auth().signOut();
+        Actions.replace("home");
     }
 
     const rejectCase = () => {
-        let currentUser = firebase
-            .auth()
-            .currentUser.email.toString()
-            .split(".")[0];
-        firebase
-            .database()
-            .ref("Users/" + currentUser)
-            .once("value", snapshot => {
-                const newRejected = snapshot.val().rejected + 1;
-                firebase
-                    .database()
-                    .ref("Users/" + currentUser)
-                    .update({ rejected: newRejected, notif: false });
-            });
+        fb.increaseRejected(currentUser);
+        sound.stopAsync();
+        Vibration.cancel();
         Actions.replace("reject");
         // Para cuando rechace la notificación se oculte la notificación
     };
 
     const acceptCase = () => {
-        let currentUser = firebase
-            .auth()
-            .currentUser.email.toString()
-            .split(".")[0];
-        firebase
-            .database()
-            .ref("Users/" + currentUser)
-            .once("value", snapshot => {
-                const newAccepted = snapshot.val().accepted + 1;
-                let received = snapshot.val().receivedNotif - 1;
-                let tI = Date.now() / 1000;
-                firebase
-                    .database()
-                    .ref("Casos/" + currentUser + received.toString())
-                    .update({ tInicial: tI, causaRechazo: "" });
-                firebase
-                    .database()
-                    .ref("Users/" + currentUser)
-                    .update({ accepted: newAccepted, ocupado: true });
-            });
-
-        firebase
-            .database()
-            .ref("Users/" + currentUser)
-            .update({ notif: false });
+        fb.handleAcceptCase(currentUser);
+        sound.stopAsync();
         Vibration.cancel();
         Actions.replace("caso"); // Si acepta se va a la ventana de casos
     };
@@ -241,151 +175,14 @@ function About() {
     return (
         <View style={{ flex: 1 }}>
             {brigada ? (
-                <View
-                    style={{
-                        flex: 1,
-                        backgroundColor: "rgba(248, 245, 245, 0.8)",
-                        paddingLeft: calcWidth(2),
-                        paddingRight: calcWidth(2),
-                        paddingTop: calcHeight(5),
-                        paddingBottom: calcHeight(5),
-                    }}
-                >
-                    <View
-                        style={{
-                            flex: 1,
-                            backgroundColor: "#e4d8b4",
-                            flexDirection: "column",
-                            position: "relative",
-                            borderRadius: 10,
-                        }}
-                    >
-                        <View style={styles.caseContainer}>
-                            <Text
-                                style={{
-                                    ...styles.textCase,
-                                    paddingTop: calcHeight(5),
-                                }}
-                            >
-                                Código:
-                            </Text>
-                            <View
-                                style={{
-                                    ...styles.caseBoxes,
-                                    height: calcHeight(5),
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        ...styles.textCase,
-                                        paddingTop: calcHeight(1),
-                                    }}
-                                >
-                                    {caso.codigo}
-                                </Text>
-                            </View>
-                            <Text
-                                style={{
-                                    ...styles.textCase,
-                                    paddingTop: calcHeight(1.5),
-                                }}
-                            >
-                                Lugar Emergencia:
-                            </Text>
-                            <View
-                                style={{
-                                    ...styles.caseBoxes,
-                                    height: calcHeight(5),
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        ...styles.textCase,
-                                        paddingTop: calcHeight(1),
-                                    }}
-                                >
-                                    {caso.lugarEmergencia}
-                                </Text>
-                            </View>
-                            <Text
-                                style={{
-                                    ...styles.textCase,
-                                    paddingTop: calcHeight(1.5),
-                                }}
-                            >
-                                Categoría:
-                            </Text>
-                            <View
-                                style={{
-                                    ...styles.caseBoxes,
-                                    height: calcHeight(5),
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        ...styles.textCase,
-                                        paddingTop: calcHeight(1),
-                                    }}
-                                >
-                                    {caso.categoria}
-                                </Text>
-                            </View>
-                            <Text
-                                style={{
-                                    ...styles.textCase,
-                                    paddingTop: calcHeight(1.5),
-                                }}
-                            >
-                                Descripción:
-                            </Text>
-                            <View
-                                style={{
-                                    ...styles.caseBoxes,
-                                    height: calcHeight(30),
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        ...styles.textCase,
-                                        paddingTop: calcHeight(1),
-                                        textAlign: "justify",
-                                    }}
-                                >
-                                    {caso.descAdicional}
-                                </Text>
-                            </View>
-                        </View>
-
-                        <View
-                            style={{
-                                flex: 1,
-                                flexDirection: "row",
-                                justifyContent: "space-evenly",
-                                position: "relative",
-                            }}
-                        >
-                            <TouchableOpacity
-                                style={{
-                                    ...styles.touchOpBut,
-                                    backgroundColor: "red",
-                                }}
-                                onPress={rejectCase}
-                            >
-                                <Text style={styles.button}>RECHAZAR</Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                style={{
-                                    ...styles.touchOpBut,
-                                    backgroundColor: "green",
-                                }}
-                                onPress={acceptCase}
-                            >
-                                <Text style={styles.button}>ACEPTAR</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
+                <NotificationContainer
+                    codigo={caso.codigo}
+                    lugarEmergencia={caso.lugarEmergencia}
+                    categoria={caso.categoria}
+                    descAdicional={caso.descAdicional}
+                    rejectCase={rejectCase}
+                    acceptCase={acceptCase}
+                />
             ) : (
                 <View style={{ position: "relative", top: 500 }}>
                     <Button
@@ -401,51 +198,6 @@ function About() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 10,
-        backgroundColor: "#ecf0f1",
-    },
-    paragraph: {
-        margin: 24,
-        fontSize: 18,
-        textAlign: "center",
-    },
-    button: {
-        color: "white",
-        fontWeight: "bold",
-        textAlign: "center",
-        paddingVertical: 13,
-    },
-    touchOpBut: {
-        flexDirection: "column",
-        height: calcHeight(6),
-        width: calcWidth(30),
-        top: calcHeight(3),
-        position: "relative",
-        borderRadius: 10,
-    },
-    caseBoxes: {
-        position: "relative",
-        backgroundColor: "rgba(248, 245, 245, 0.8)",
-        borderRadius: 10,
-        borderColor: "black",
-        paddingLeft: calcWidth(1.5),
-        paddingRight: calcWidth(1.5),
-    },
-    caseContainer: {
-        flex: 4,
-        flexDirection: "column",
-        position: "relative",
-        paddingLeft: calcWidth(3),
-        paddingRight: calcWidth(3),
-    },
-    textCase: {
-        fontWeight: "bold",
-    },
-});
+const styles = StyleSheet.create({});
 
 export default About;
