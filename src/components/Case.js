@@ -6,24 +6,35 @@ import * as firebase from "firebase";
 import { useSelector, useDispatch } from "react-redux";
 import fb from "../routes/ConfigFire";
 
+
 function Case() {
+
   const handleBackButton = useCallback(() => {
     return true;
   });
   const infoUser = useSelector(state => state.info);
   const [webToken, setWebToken] = useState("");
+  const [timer, setTimer] = useState(0)
+ 
   let currentUser = firebase
     .auth()
     .currentUser.email.toString()
     .split(".")[0];
-
+useEffect(()=>{
+  console.log(timer)
+},[timer])
   useEffect(() => {
-    console.log("Mounted Caseee");
+    console.log("Mounted Caseee1");
+    let timerCase = setInterval(()=>{
+      fb.closeCase(currentUser)
+      setTimer(prevTime => prevTime + 1)
+    },1000)
     BackHandler.addEventListener("hardwareBackPress", handleBackButton);
     getFBInfo();
     return () => {
       console.log("Unmounted Case");
       BackHandler.removeEventListener("hardwareBackPress", handleBackButton);
+      clearInterval(timerCase)
     };
   }, []);
 
@@ -120,6 +131,7 @@ function Case() {
       >
         <Text>Camilla</Text>
       </Button>
+  <Text>{new Date(timer * 1000).toISOString().substr(11, 8)}</Text>
     </View>
   );
 }

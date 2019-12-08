@@ -25,13 +25,14 @@ import {
 import _ from "lodash";
 import fb from "../routes/ConfigFire";
 import NotificationContainer from "./NotificationContainer";
-import BackgroundTimer from "react-native-background-timer";
+import * as Location from 'expo-location'
 
 function About() {
     const infoUser = useSelector(state => state.info);
     const brigada = useSelector(state => state.brigada); //Variable que controlará la visibilidad de la notificación
     const caso = useSelector(state => state.case);
     const [sound, setSound] = useState(null);
+    const [location, setLocation] = useState(null)
     const dispatch = useDispatch();
     let currentUser = firebase
         .auth()
@@ -51,6 +52,7 @@ function About() {
         initializer();
         register();
         this.listener = Notifications.addListener(listen);
+     
         Audio.setAudioModeAsync({
             staysActiveInBackground: true,
             allowsRecordingIOS: false,
@@ -60,15 +62,40 @@ function About() {
             playThroughEarpieceAndroid: false,
             shouldDuckAndroid: true,
         });
+       getPermissionsAsync()
+       
         return () => {
             console.log("Unmounted About");
             this.listener.remove(); // OJO ACÁ CUANDO HAGAMOS MÚLTIPLES PESTAÑAS
+         
         };
     }, []);
 
+    const getPermissionsAsync = async() => {
+        let {status} = await Permissions.askAsync(Permissions.LOCATION)
+        if (status !== "granted"){
+            alert("No permissions")
+        }else{
+            console.log("Permission granted!")
+        }
+        getLocationAsync()
+
+      
+    }
+    const getLocationAsync = () =>{
+        Location.watchPositionAsync({
+            enableHighAccuracy: false,
+            timeInterval: 4000,
+            distanceInterval: 0
+        }, location => {
+            setLocation(location)
+            fb.updateCoords(location.coords.latitude, location.coords.longitude, currentUser)
+        })
+    }
+
     function initializer() {
         // When component mounts, there will be a listener for notif sent
-        console.log("UPDATED14");
+        console.log("UPDATED16");
         firebase
             .database()
             .ref("Users/" + currentUser)

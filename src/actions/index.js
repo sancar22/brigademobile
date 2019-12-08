@@ -26,6 +26,7 @@ export const fillCategory = info => {
     };
 };
 
+
 export const fillDescription = info => {
     return {
         type: "FILL_DESCRIPTION",
