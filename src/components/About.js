@@ -115,10 +115,6 @@ function About() {
                 console.log(error);
             }
 
-            BackgroundTimer.setInterval(() => {
-                console.log("Hello");
-            }, 5000);
-
             fb.setCustomRejectCause(currentUser);
             firebase
                 .database()
