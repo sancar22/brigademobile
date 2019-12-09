@@ -1,16 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Actions } from "react-native-router-flux"; //npm i react-native-router-flux --save
 import { config } from "../routes/Config";
 import * as firebase from "firebase"; // npm install --save react-native-firebase
 import { Container, Form, Input, Item, Button, Label } from "native-base";
-import { StyleSheet, Text, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, ActivityIndicator, Image } from "react-native";
+import {Asset} from 'expo-asset'
+import SignInC from './SignInC'
+import {AppLoading} from 'expo'
 
 // This is the login Window
-
+function cacheImage(images){
+    return images.map(images => {
+        if(typeof image === "string"){
+            return Image.prefetch(image)
+        }else{
+            return Asset.fromModule(image).downloadAsync()
+        }
+    })
+}
 function Home() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [isReady, setIsReady] = useState(false)
 
     let authFlag = true;
     firebase.auth().onAuthStateChanged(user => {
@@ -35,74 +47,34 @@ function Home() {
             console.log(error.toString());
         }
     };
-
-    const signUpUser = (email, password) => {
-        try {
-            if (email.length < 6) {
-                alert("Please enter at least 6 characters");
-                return;
-            }
-            firebase
-                .auth()
-                .createUserWithEmailAndPassword(email.trim(), password); // Register user in firebase
-        } catch (error) {
-            console.log(error.toString());
-        }
-    };
+    const emailHandler = (email) => {
+        setEmail(email)
+    }
+    const passwordHandler = (password) => {
+        setPassword(password)
+    }
+    const loadAssetsAsync = async() =>{
+        const imageAssets = cacheImage([require('../../assets/uni2.jpg')])
+        await Promise.all([...imageAssets]) // Colocar Logo brigada también
+    }
     return (
-        <Container style={styles.container}>
-            <Form>
-                <Item floatingLabel>
-                    <Label>Email</Label>
-                    <Input
-                        autoCorrect={false}
-                        autoCapitalize="none"
-                        onChangeText={email => setEmail(email)} // Constantly update email
-                    />
-                </Item>
-
-                <Item floatingLabel>
-                    <Label>Password</Label>
-                    <Input
-                        secureTextEntry={true}
-                        autoCorrect={false}
-                        autoCapitalize="none"
-                        onChangeText={password => setPassword(password)} // Constantly update password
-                    />
-                </Item>
-
-                <Button
-                    style={{ marginTop: 10 }} // Login button
-                    full
-                    rounded
-                    success
-                    onPress={() => loginUser(email, password)}
-                >
-                    <Text>Login</Text>
-                </Button>
-
-                <Button
-                    style={{ margixnTop: 10 }} // Forget button
-                    full
-                    rounded
-                    primary
-                    onPress={() => Actions.forgot()}
-                >
-                    <Text>Forgot PWRD</Text>
-                </Button>
-
-                <Button
-                    style={{ margixnTop: 10 }} // Forget button
-                    full
-                    rounded
-                    success
-                    onPress={() => signUpUser(email, password)}
-                >
-                    <Text>Sign Up</Text>
-                </Button>
-                {loading && <ActivityIndicator />}
-            </Form>
-        </Container>
+<Container>
+        {isReady ? <AppLoading
+            startAsync={loadAssetsAsync}
+            onFinish={()=> setIsReady(true)}
+            onError={console.warn}
+            /> :  
+            <SignInC
+                loading={loading}
+                loginUser={loginUser}
+                emailHandler={emailHandler}
+                passwordHandler={passwordHandler}
+                email={email}
+                password={password}
+            />
+        } 
+    </Container>
+       
     );
 }
 
@@ -111,7 +83,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#fff",
         justifyContent: "center",
-        padding: 10,
+
     },
 });
 

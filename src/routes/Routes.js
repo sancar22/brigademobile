@@ -13,9 +13,9 @@ function Routes() {
             <Scene key="root">
                 <Scene
                     key="home"
+                    initial={true}
                     component={Home}
                     title="Home"
-                    initial={true}
                     hideNavBar
                 />
                 <Scene key="about" component={About} title="About" hideNavBar />

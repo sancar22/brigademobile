@@ -85,7 +85,7 @@ function About() {
     const getLocationAsync = () =>{
         Location.watchPositionAsync({
             enableHighAccuracy: false,
-            timeInterval: 4000,
+            timeInterval: 30000,
             distanceInterval: 0
         }, location => {
             setLocation(location)
