@@ -149,6 +149,7 @@ function SignInC(props) {
                     />
                 </Svg>
             </Animated.View>
+
             <Animated.View style={styles.brigadaIcon}>
                 <Image
                     style={styles.round}
@@ -157,19 +158,21 @@ function SignInC(props) {
             </Animated.View>
 
             <View style={{ height: height / 3, justifyContent: "center" }}>
-                <TapGestureHandler onHandlerStateChange={onStateChange}>
-                    <Animated.View
-                        style={{
-                            ...styles.button,
-                            opacity: buttonOpacity,
-                            transform: [{ translateY: buttonY }],
-                        }}
-                    >
-                        <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-                            INGRESAR
-                        </Text>
-                    </Animated.View>
-                </TapGestureHandler>
+                <TouchableOpacity>
+                    <TapGestureHandler onHandlerStateChange={onStateChange}>
+                        <Animated.View
+                            style={{
+                                ...styles.button,
+                                opacity: buttonOpacity,
+                                transform: [{ translateY: buttonY }],
+                            }}
+                        >
+                            <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+                                INGRESAR
+                            </Text>
+                        </Animated.View>
+                    </TapGestureHandler>
+                </TouchableOpacity>
                 <TouchableOpacity onPress={() => Actions.forgot()}>
                     <Animated.View
                         style={{

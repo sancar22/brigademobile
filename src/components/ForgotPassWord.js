@@ -30,6 +30,9 @@ class ForgotPassWord extends React.Component {
                 .then(() => {
                     alert("Check your email to reset your password");
                     Actions.home(); // Return to home
+                })
+                .catch(err => {
+                    alert(err);
                 });
         } catch (error) {
             console.log(error.toString());
