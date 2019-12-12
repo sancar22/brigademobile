@@ -44,6 +44,38 @@ class Firebase {
             });
     }
 
+    sendWebNotification(webToken, infoUser, genero, objeto) {
+        const PUSH_ENDPOINT = "https://fcm.googleapis.com/fcm/send";
+        let key =
+            "AAAAppNbUYM:APA91bFd8gfd0fq0Jq8Crskxl5Ah4abkpQUmtrUjsTIQ17nsPK_jvb07JSvvNcBpNpFU_d3yjpR0KtMgRqHQRJpOUMN4iAsQNT7qjRzRmzr5bkUM7uF8M165De9OuYqrUhBmLoeCDImp";
+        let to = webToken;
+        let notification = {
+            body: `El brigadista ${infoUser.nombre +
+                " " +
+                infoUser.apellido} requiere  ${genero + " " + objeto}.`,
+            objeto: `${objeto}`,
+            click_action: "http://localhost:3000",
+            requireInteraction: true,
+        };
+        fetch(PUSH_ENDPOINT, {
+            method: "POST",
+            headers: {
+                Authorization: "key=" + key,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                data: notification,
+                to: to,
+            }),
+        })
+            .catch(err => {
+                alert(`Error en solicitud de ${objeto}. Vuelva a intentarlo.`);
+            })
+            .then(() => {
+                alert(`Objeto: ${objeto} solicitad@`);
+            });
+    }
+
     increaseRejected(currentUser) {
         firebase
             .database()
