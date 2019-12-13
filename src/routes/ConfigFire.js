@@ -17,7 +17,7 @@ class Firebase {
                 Expotoken: token,
                 UID: currentUID,
                 online: true,
-                selected: false,
+                selected: false
             });
     }
 
@@ -40,7 +40,7 @@ class Firebase {
             .ref("Users/" + currentUser)
             .update({
                 online: false,
-                selected: false,
+                selected: false
             });
     }
 
@@ -55,18 +55,18 @@ class Firebase {
                 infoUser.apellido} requiere  ${genero + " " + objeto}.`,
             objeto: `${objeto}`,
             click_action: "http://localhost:3000",
-            requireInteraction: true,
+            requireInteraction: true
         };
         fetch(PUSH_ENDPOINT, {
             method: "POST",
             headers: {
                 Authorization: "key=" + key,
-                "Content-Type": "application/json",
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 data: notification,
-                to: to,
-            }),
+                to: to
+            })
         })
             .catch(err => {
                 alert(`Error en solicitud de ${objeto}. Vuelva a intentarlo.`);
@@ -100,14 +100,14 @@ class Firebase {
                 firebase
                     .database()
                     .ref("Casos/" + currentUser + received.toString())
-                    .update({ tInicial: tI, causaRechazo: "" });
+                    .update({ tInicial: tI, causaRechazo: "", active: true });
                 firebase
                     .database()
                     .ref("Users/" + currentUser)
                     .update({
                         accepted: newAccepted,
                         ocupado: true,
-                        notif: false,
+                        notif: false
                     });
             });
     }
@@ -133,6 +133,23 @@ class Firebase {
             .update({ Latitud: lat, Longitud: long });
     }
 
+    requestExt(currentUser, infoUser) {
+        firebase
+            .database()
+            .ref(
+                "Casos/" + currentUser + (infoUser.receivedNotif - 1).toString()
+            )
+            .update({ extintor: true });
+    }
+
+    requestCam(currentUser, infoUser) {
+        firebase
+            .database()
+            .ref(
+                "Casos/" + currentUser + (infoUser.receivedNotif - 1).toString()
+            )
+            .update({ camilla: true });
+    }
     closeCase(currentUser) {
         Number.prototype.padLeft = function(base, chr) {
             var len = String(base || 10).length - String(this).length + 1;
@@ -143,13 +160,13 @@ class Firebase {
                 [
                     (d.getMonth() + 1).padLeft(),
                     d.getDate().padLeft(),
-                    d.getFullYear(),
+                    d.getFullYear()
                 ].join("/") +
                 " " +
                 [
                     d.getHours().padLeft(),
                     d.getMinutes().padLeft(),
-                    d.getSeconds().padLeft(),
+                    d.getSeconds().padLeft()
                 ].join(":");
 
         firebase
@@ -173,7 +190,8 @@ class Firebase {
                             .update({
                                 finalFecha: dformat,
                                 tTranscurrido: tTrans,
-                                tFinal: finishTime,
+                                active: false,
+                                tFinal: finishTime
                             });
                     });
             });

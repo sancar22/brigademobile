@@ -5,11 +5,12 @@ import { Actions } from "react-native-router-flux";
 import * as firebase from "firebase";
 import { useSelector, useDispatch } from "react-redux";
 import fb from "../routes/ConfigFire";
+import { Notifications } from "expo";
 
 function Case() {
     const infoUser = useSelector(state => state.info);
     const [webToken, setWebToken] = useState("");
-    const [timer, setTimer] = useState(0);
+
     let currentUser = firebase
         .auth()
         .currentUser.email.toString()
@@ -17,15 +18,10 @@ function Case() {
 
     useEffect(() => {
         console.log("Mounted Caseee1");
-        let timerCase = setInterval(() => {
-            fb.closeCase(currentUser);
-            setTimer(prevTime => prevTime + 1);
-        }, 1000);
 
         getFBInfo();
         return () => {
             console.log("Unmounted Case");
-            clearInterval(timerCase);
         };
     }, []);
 
@@ -46,12 +42,14 @@ function Case() {
     const extintor = () => {
         const extint = "extintor";
         const genero = "un";
+        fb.requestExt(currentUser, infoUser);
         pushWeb(extint, genero);
     };
 
     const camilla = () => {
         const genero = "una";
         const camill = "camilla";
+        fb.requestCam(currentUser, infoUser);
         pushWeb(camill, genero);
     };
 
@@ -62,7 +60,7 @@ function Case() {
     return (
         <View>
             <Button
-                style={{ marginTop: 10 }} // Login button
+                style={{ marginTop: 30 }} // Login button
                 full
                 rounded
                 success
@@ -88,7 +86,6 @@ function Case() {
             >
                 <Text>Camilla</Text>
             </Button>
-            <Text>{new Date(timer * 1000).toISOString().substr(11, 8)}</Text>
         </View>
     );
 }

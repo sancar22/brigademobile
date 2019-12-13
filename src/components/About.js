@@ -7,7 +7,7 @@ import {
     Button,
     Vibration,
     Alert,
-    TouchableOpacity,
+    TouchableOpacity
 } from "react-native";
 import { Actions } from "react-native-router-flux";
 import * as Permissions from "expo-permissions";
@@ -20,7 +20,7 @@ import {
     fillCode,
     fillCategory,
     fillDescription,
-    fillInfo,
+    fillInfo
 } from "../actions/index";
 import _ from "lodash";
 import fb from "../routes/ConfigFire";
@@ -59,7 +59,7 @@ function About() {
             playsInSilentModeIOS: true,
             interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
             playThroughEarpieceAndroid: false,
-            shouldDuckAndroid: true,
+            shouldDuckAndroid: true
         });
         getPermissionsAsync();
 
@@ -83,7 +83,7 @@ function About() {
             {
                 enableHighAccuracy: false,
                 timeInterval: 30000,
-                distanceInterval: 0,
+                distanceInterval: 0
             },
             location => {
                 setLocation(location);
@@ -128,50 +128,59 @@ function About() {
         console.log(origin, data);
 
         if (origin === "received") {
-            Vibration.vibrate(10000);
-            try {
-                const {
-                    sound: soundObject,
-                    status,
-                } = await Audio.Sound.createAsync(
-                    {
-                        uri:
-                            "https://firebasestorage.googleapis.com/v0/b/brigadaun.appspot.com/o/audios%2Falarm.wav?alt=media&token=a2c80767-bae0-47b8-8dae-3b1a7af590df",
-                    },
-                    { shouldPlay: true }
-                );
-                setSound(soundObject);
-            } catch (error) {
-                console.log(error);
-            }
+            if (data.id !== "1") {
+                Vibration.vibrate(10000);
+                try {
+                    const {
+                        sound: soundObject,
+                        status
+                    } = await Audio.Sound.createAsync(
+                        {
+                            uri:
+                                "https://firebasestorage.googleapis.com/v0/b/brigadaun.appspot.com/o/audios%2Falarm.wav?alt=media&token=a2c80767-bae0-47b8-8dae-3b1a7af590df"
+                        },
+                        { shouldPlay: true }
+                    );
+                    setSound(soundObject);
+                } catch (error) {
+                    console.log(error);
+                }
 
-            fb.setCustomRejectCause(currentUser);
-            firebase
-                .database()
-                .ref("Users/" + currentUser)
-                .once("value", snapshot => {
-                    const userInfo = snapshot.val();
-                    const notifs = snapshot.val().receivedNotif + 1; // aumentar notificaciones recibidas
-                    if (!userInfo.expired) {
-                        firebase
-                            .database()
-                            .ref(
-                                "Casos/" + currentUser + userInfo.receivedNotif
-                            ) // Para updatear la variable de Redux de caso
-                            .once("value", snapshot => {
-                                const caseInfo = snapshot.val();
-                                dispatch(fillPlace(caseInfo.lugar));
-                                dispatch(fillCode(caseInfo.codigo));
-                                dispatch(fillDescription(caseInfo.descripcion));
-                                dispatch(fillCategory(caseInfo.categoria));
-                            });
-                        firebase
-                            .database()
-                            .ref("Users/" + currentUser)
-                            .update({ receivedNotif: notifs, notif: true });
-                        // se updatea +1
-                    }
-                });
+                fb.setCustomRejectCause(currentUser);
+                firebase
+                    .database()
+                    .ref("Users/" + currentUser)
+                    .once("value", snapshot => {
+                        const userInfo = snapshot.val();
+                        const notifs = snapshot.val().receivedNotif + 1; // aumentar notificaciones recibidas
+                        if (!userInfo.expired) {
+                            firebase
+                                .database()
+                                .ref(
+                                    "Casos/" +
+                                        currentUser +
+                                        userInfo.receivedNotif
+                                ) // Para updatear la variable de Redux de caso
+                                .once("value", snapshot => {
+                                    const caseInfo = snapshot.val();
+                                    dispatch(fillPlace(caseInfo.lugar));
+                                    dispatch(fillCode(caseInfo.codigo));
+                                    dispatch(
+                                        fillDescription(caseInfo.descripcion)
+                                    );
+                                    dispatch(fillCategory(caseInfo.categoria));
+                                });
+                            firebase
+                                .database()
+                                .ref("Users/" + currentUser)
+                                .update({ receivedNotif: notifs, notif: true });
+                            // se updatea +1
+                        }
+                    });
+            } else {
+                Vibration.vibrate(3000);
+                alert(data.name);
+            }
         }
     };
 
