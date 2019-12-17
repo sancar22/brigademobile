@@ -6,13 +6,12 @@ import {
     StyleSheet,
     Button,
     Vibration,
-    Alert,
     TouchableOpacity
 } from "react-native";
 import { Actions } from "react-native-router-flux";
 import * as Permissions from "expo-permissions";
 import * as firebase from "firebase";
-import { Notifications } from "expo";
+import { Notifications, Alert } from "expo";
 import { useSelector, useDispatch } from "react-redux";
 import {
     notifshow,
@@ -179,7 +178,7 @@ function About() {
                     });
             } else {
                 Vibration.vibrate(3000);
-                alert(data.name);
+                Alert.alert(data.name);
             }
         }
     };

@@ -100,7 +100,13 @@ class Firebase {
                 firebase
                     .database()
                     .ref("Casos/" + currentUser + received.toString())
-                    .update({ tInicial: tI, causaRechazo: "", active: true });
+                    .update({
+                        tInicial: tI,
+                        causaRechazo: "",
+                        active: true,
+                        closed: false,
+                        date: Date.now()
+                    });
                 firebase
                     .database()
                     .ref("Users/" + currentUser)
@@ -191,7 +197,8 @@ class Firebase {
                                 finalFecha: dformat,
                                 tTranscurrido: tTrans,
                                 active: false,
-                                tFinal: finishTime
+                                tFinal: finishTime,
+                                calcFin: Date.now()
                             });
                     });
             });
