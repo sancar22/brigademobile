@@ -6,7 +6,7 @@ import {
     Button,
     Vibration,
     Alert,
-    TouchableOpacity,
+    TouchableOpacity
 } from "react-native";
 import { calcWidth, calcHeight } from "../HelpFunctions";
 
@@ -19,7 +19,7 @@ function NotificationContainer(props) {
                 paddingLeft: calcWidth(2),
                 paddingRight: calcWidth(2),
                 paddingTop: calcHeight(5),
-                paddingBottom: calcHeight(5),
+                paddingBottom: calcHeight(5)
             }}
         >
             <View
@@ -28,14 +28,16 @@ function NotificationContainer(props) {
                     backgroundColor: "#e4d8b4",
                     flexDirection: "column",
                     position: "relative",
-                    borderRadius: 10,
+                    borderRadius: 10
                 }}
             >
                 <View style={styles.caseContainer}>
                     <Text
                         style={{
                             ...styles.textCase,
-                            paddingTop: calcHeight(5),
+                            paddingTop: props.button
+                                ? calcHeight(5)
+                                : calcHeight(2)
                         }}
                     >
                         Código:
@@ -43,13 +45,13 @@ function NotificationContainer(props) {
                     <View
                         style={{
                             ...styles.caseBoxes,
-                            height: calcHeight(5),
+                            height: calcHeight(5)
                         }}
                     >
                         <Text
                             style={{
                                 ...styles.textCase,
-                                paddingTop: calcHeight(1),
+                                paddingTop: calcHeight(1)
                             }}
                         >
                             {props.codigo}
@@ -58,7 +60,7 @@ function NotificationContainer(props) {
                     <Text
                         style={{
                             ...styles.textCase,
-                            paddingTop: calcHeight(1.5),
+                            paddingTop: calcHeight(1.5)
                         }}
                     >
                         Lugar Emergencia:
@@ -66,13 +68,13 @@ function NotificationContainer(props) {
                     <View
                         style={{
                             ...styles.caseBoxes,
-                            height: calcHeight(5),
+                            height: calcHeight(5)
                         }}
                     >
                         <Text
                             style={{
                                 ...styles.textCase,
-                                paddingTop: calcHeight(1),
+                                paddingTop: calcHeight(1)
                             }}
                         >
                             {props.lugarEmergencia}
@@ -81,7 +83,7 @@ function NotificationContainer(props) {
                     <Text
                         style={{
                             ...styles.textCase,
-                            paddingTop: calcHeight(1.5),
+                            paddingTop: calcHeight(1.5)
                         }}
                     >
                         Categoría:
@@ -89,13 +91,13 @@ function NotificationContainer(props) {
                     <View
                         style={{
                             ...styles.caseBoxes,
-                            height: calcHeight(5),
+                            height: calcHeight(5)
                         }}
                     >
                         <Text
                             style={{
                                 ...styles.textCase,
-                                paddingTop: calcHeight(1),
+                                paddingTop: calcHeight(1)
                             }}
                         >
                             {props.categoria}
@@ -104,7 +106,7 @@ function NotificationContainer(props) {
                     <Text
                         style={{
                             ...styles.textCase,
-                            paddingTop: calcHeight(1.5),
+                            paddingTop: calcHeight(1.5)
                         }}
                     >
                         Descripción:
@@ -112,14 +114,14 @@ function NotificationContainer(props) {
                     <View
                         style={{
                             ...styles.caseBoxes,
-                            height: calcHeight(30),
+                            height: calcHeight(30)
                         }}
                     >
                         <Text
                             style={{
                                 ...styles.textCase,
                                 paddingTop: calcHeight(1),
-                                textAlign: "justify",
+                                textAlign: "justify"
                             }}
                         >
                             {props.descAdicional}
@@ -132,28 +134,66 @@ function NotificationContainer(props) {
                         flex: 1,
                         flexDirection: "row",
                         justifyContent: "space-evenly",
-                        position: "relative",
+                        position: "relative"
                     }}
                 >
-                    <TouchableOpacity
-                        style={{
-                            ...styles.touchOpBut,
-                            backgroundColor: "red",
-                        }}
-                        onPress={props.rejectCase}
-                    >
-                        <Text style={styles.button}>RECHAZAR</Text>
-                    </TouchableOpacity>
+                    {props.button ? (
+                        <View
+                            style={{
+                                display: "flex",
+                                flexDirection: "row"
+                            }}
+                        >
+                            <TouchableOpacity
+                                style={{
+                                    ...styles.touchOpBut,
+                                    backgroundColor: "red",
+                                    marginRight: 90
+                                }}
+                                onPress={props.rejectCase}
+                            >
+                                <Text style={styles.button}>RECHAZAR</Text>
+                            </TouchableOpacity>
 
-                    <TouchableOpacity
-                        style={{
-                            ...styles.touchOpBut,
-                            backgroundColor: "green",
-                        }}
-                        onPress={props.acceptCase}
-                    >
-                        <Text style={styles.button}>ACEPTAR</Text>
-                    </TouchableOpacity>
+                            <TouchableOpacity
+                                style={{
+                                    ...styles.touchOpBut,
+                                    backgroundColor: "green"
+                                }}
+                                onPress={props.acceptCase}
+                            >
+                                <Text style={styles.button}>ACEPTAR</Text>
+                            </TouchableOpacity>
+                        </View>
+                    ) : (
+                        <View style={{ display: "flex" }}>
+                            <Text
+                                style={{
+                                    ...styles.textCase,
+                                    top: calcHeight(5)
+                                }}
+                            >
+                                Tiempo transcurrido:
+                            </Text>
+                            <View
+                                style={{
+                                    ...styles.caseBoxes,
+                                    height: calcHeight(5),
+                                    top: calcHeight(5),
+                                    width: calcWidth(90)
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        ...styles.textCase,
+                                        paddingTop: calcHeight(1)
+                                    }}
+                                >
+                                    {props.timer}
+                                </Text>
+                            </View>
+                        </View>
+                    )}
                 </View>
             </View>
         </View>
@@ -166,26 +206,25 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         padding: 10,
-        backgroundColor: "#ecf0f1",
+        backgroundColor: "#ecf0f1"
     },
     paragraph: {
         margin: 24,
         fontSize: 18,
-        textAlign: "center",
+        textAlign: "center"
     },
     button: {
         color: "white",
         fontWeight: "bold",
         textAlign: "center",
-        paddingVertical: 13,
+        paddingVertical: 13
     },
     touchOpBut: {
-        flexDirection: "column",
         height: calcHeight(6),
         width: calcWidth(30),
         top: calcHeight(3),
         position: "relative",
-        borderRadius: 10,
+        borderRadius: 10
     },
     caseBoxes: {
         position: "relative",
@@ -193,17 +232,17 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         borderColor: "black",
         paddingLeft: calcWidth(1.5),
-        paddingRight: calcWidth(1.5),
+        paddingRight: calcWidth(1.5)
     },
     caseContainer: {
         flex: 4,
         flexDirection: "column",
         position: "relative",
         paddingLeft: calcWidth(3),
-        paddingRight: calcWidth(3),
+        paddingRight: calcWidth(3)
     },
     textCase: {
-        fontWeight: "bold",
-    },
+        fontWeight: "bold"
+    }
 });
 export default NotificationContainer;

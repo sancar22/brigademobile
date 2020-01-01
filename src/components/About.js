@@ -19,7 +19,8 @@ import {
     fillCode,
     fillCategory,
     fillDescription,
-    fillInfo
+    fillInfo,
+    fillDate
 } from "../actions/index";
 import _ from "lodash";
 import fb from "../routes/ConfigFire";
@@ -199,6 +200,7 @@ function About() {
 
     const acceptCase = () => {
         fb.handleAcceptCase(currentUser);
+
         sound.stopAsync();
         Vibration.cancel();
         Actions.replace("caso"); // Si acepta se va a la ventana de casos
@@ -214,6 +216,7 @@ function About() {
                     descAdicional={caso.descAdicional}
                     rejectCase={rejectCase}
                     acceptCase={acceptCase}
+                    button={true}
                 />
             ) : (
                 <View style={{ position: "relative", top: 500 }}>

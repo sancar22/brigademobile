@@ -6,6 +6,7 @@ import ForgotPassWord from "../components/ForgotPassWord";
 import Case from "../components/Case";
 import Reject from "../components/Reject";
 import _ from "lodash";
+import Case2 from "../components/Case2";
 
 function Routes() {
     return (
@@ -24,7 +25,38 @@ function Routes() {
                     component={ForgotPassWord}
                     title="Password Forget"
                 />
-                <Scene key="caso" component={Case} title="Case" hideNavBar />
+                <Scene
+                    key="caso"
+                    tabs
+                    hideNavBar
+                    tabBarStyle={{
+                        backgroundColor: "white",
+                        display: "flex"
+                    }}
+                    labelStyle={{
+                        fontSize: 20,
+                        marginBottom: 10
+                    }}
+                    headerLayoutPreset="center"
+                >
+                    <Scene key="tab1" title="Info Caso">
+                        <Scene
+                            key="caso"
+                            component={Case2}
+                            headerLayoutPreset="center"
+                            initial
+                        />
+                    </Scene>
+                    <Scene key="tab2" title="Caso Parte 2">
+                        <Scene
+                            key="caso"
+                            component={Case}
+                            headerLayoutPreset="center"
+                            initial
+                        />
+                    </Scene>
+                </Scene>
+
                 <Scene
                     key="reject"
                     component={Reject}
