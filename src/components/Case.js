@@ -19,42 +19,15 @@ function Case() {
     useEffect(() => {
         console.log("Mounted Caseee1");
 
-        getFBInfo();
         return () => {
             console.log("Unmounted Case");
         };
     }, []);
 
-    const getFBInfo = () => {
-        firebase
-            .database()
-            .ref("/Users/admin@gmail")
-            .on("value", snapshot => {
-                setWebToken(snapshot.val().pushToken);
-            });
-    };
     const back = () => {
         fb.closeCase(currentUser);
         fb.updateBusy(currentUser);
         Actions.replace("about");
-    };
-
-    const extintor = () => {
-        const extint = "extintor";
-        const genero = "un";
-        fb.requestExt(currentUser, infoUser);
-        pushWeb(extint, genero);
-    };
-
-    const camilla = () => {
-        const genero = "una";
-        const camill = "camilla";
-        fb.requestCam(currentUser, infoUser);
-        pushWeb(camill, genero);
-    };
-
-    const pushWeb = (objeto, genero) => {
-        fb.sendWebNotification(webToken, infoUser, genero, objeto);
     };
 
     return (
@@ -67,24 +40,6 @@ function Case() {
                 onPress={back}
             >
                 <Text>Devolverse</Text>
-            </Button>
-            <Button
-                style={{ marginTop: 100 }} // Login button
-                full
-                rounded
-                success
-                onPress={extintor}
-            >
-                <Text>Extintor</Text>
-            </Button>
-            <Button
-                style={{ marginTop: 100 }} // Login button
-                full
-                rounded
-                success
-                onPress={camilla}
-            >
-                <Text>Camilla</Text>
             </Button>
         </View>
     );

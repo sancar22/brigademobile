@@ -156,6 +156,38 @@ class Firebase {
             )
             .update({ camilla: true });
     }
+    requestPol(currentUser, infoUser) {
+        firebase
+            .database()
+            .ref(
+                "Casos/" + currentUser + (infoUser.receivedNotif - 1).toString()
+            )
+            .update({ policia: true });
+    }
+    requestApoyo(currentUser, infoUser) {
+        firebase
+            .database()
+            .ref(
+                "Casos/" + currentUser + (infoUser.receivedNotif - 1).toString()
+            )
+            .update({ apoyo: true });
+    }
+    requestBom(currentUser, infoUser) {
+        firebase
+            .database()
+            .ref(
+                "Casos/" + currentUser + (infoUser.receivedNotif - 1).toString()
+            )
+            .update({ bombero: true });
+    }
+    requestAmb(currentUser, infoUser) {
+        firebase
+            .database()
+            .ref(
+                "Casos/" + currentUser + (infoUser.receivedNotif - 1).toString()
+            )
+            .update({ ambulancia: true });
+    }
     async uploadCaseImages1(uri, imageName, currentUser, infoUser) {
         const response = await fetch(uri);
         const blob = await response.blob();
