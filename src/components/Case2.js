@@ -3,13 +3,7 @@ import { Text, View } from "react-native";
 import NotificationContainer from "./NotificationContainer";
 import { useSelector, useDispatch } from "react-redux";
 import * as firebase from "firebase";
-import {
-    fillPlace,
-    fillCode,
-    fillCategory,
-    fillDescription,
-    fillDate
-} from "../actions/index";
+import { fillAll } from "../actions/index";
 function Case2(props) {
     const dispatch = useDispatch();
     let currentUser = firebase
@@ -35,22 +29,18 @@ function Case2(props) {
             .ref(
                 "Casos/" + currentUser + (infoUser.receivedNotif - 1).toString()
             )
-            .once("value", snapshot => {
+            .on("value", snapshot => {
                 const caseInfo = snapshot.val();
-                dispatch(fillPlace(caseInfo.lugar));
-                dispatch(fillCode(caseInfo.codigo));
-                dispatch(fillDescription(caseInfo.descripcion));
-                dispatch(fillCategory(caseInfo.categoria));
-                dispatch(fillDate(caseInfo.date));
+                dispatch(fillAll(caseInfo));
             });
     }, []);
 
     return (
         <NotificationContainer
             codigo={caso.codigo}
-            lugarEmergencia={caso.lugarEmergencia}
+            lugar={caso.lugar}
             categoria={caso.categoria}
-            descAdicional={caso.descAdicional}
+            descripcion={caso.descripcion}
             timer={new Date(timer * 1000).toISOString().substr(11, 8)}
             button={false}
         />

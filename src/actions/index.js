@@ -33,6 +33,13 @@ export const fillDate = info => {
     };
 };
 
+export const fillAll = info => {
+    return {
+        type: "FILL_ALL",
+        payload: info
+    };
+};
+
 export const fillDescription = info => {
     return {
         type: "FILL_DESCRIPTION",

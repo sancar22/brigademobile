@@ -156,6 +156,86 @@ class Firebase {
             )
             .update({ camilla: true });
     }
+    async uploadCaseImages1(uri, imageName, currentUser, infoUser) {
+        const response = await fetch(uri);
+        const blob = await response.blob();
+
+        let ref = firebase
+            .storage()
+            .ref()
+            .child("caseImages/" + imageName)
+            .put(blob);
+        ref.on(
+            "state_changed",
+            snapshot => {
+                // progrss function ....
+            },
+            error => {
+                // error function ....
+                console.log(error);
+            },
+            () => {
+                // complete function ....
+                firebase
+                    .storage()
+                    .ref("caseImages/")
+                    .child(imageName)
+                    .getDownloadURL()
+                    .then(url => {
+                        firebase
+                            .database()
+                            .ref(
+                                "Casos/" +
+                                    currentUser +
+                                    (infoUser.receivedNotif - 1).toString()
+                            )
+                            .update({
+                                image1: url
+                            });
+                    });
+            }
+        );
+    }
+    async uploadCaseImages2(uri, imageName, currentUser, infoUser) {
+        const response = await fetch(uri);
+        const blob = await response.blob();
+
+        let ref = firebase
+            .storage()
+            .ref()
+            .child("caseImages/" + imageName)
+            .put(blob);
+        ref.on(
+            "state_changed",
+            snapshot => {
+                // progrss function ....
+            },
+            error => {
+                // error function ....
+                console.log(error);
+            },
+            () => {
+                // complete function ....
+                firebase
+                    .storage()
+                    .ref("caseImages/")
+                    .child(imageName)
+                    .getDownloadURL()
+                    .then(url => {
+                        firebase
+                            .database()
+                            .ref(
+                                "Casos/" +
+                                    currentUser +
+                                    (infoUser.receivedNotif - 1).toString()
+                            )
+                            .update({
+                                image2: url
+                            });
+                    });
+            }
+        );
+    }
     closeCase(currentUser) {
         Number.prototype.padLeft = function(base, chr) {
             var len = String(base || 10).length - String(this).length + 1;

@@ -77,7 +77,7 @@ function NotificationContainer(props) {
                                 paddingTop: calcHeight(1)
                             }}
                         >
-                            {props.lugarEmergencia}
+                            {props.lugar}
                         </Text>
                     </View>
                     <Text
@@ -124,7 +124,7 @@ function NotificationContainer(props) {
                                 textAlign: "justify"
                             }}
                         >
-                            {props.descAdicional}
+                            {props.descripcion}
                         </Text>
                     </View>
                 </View>

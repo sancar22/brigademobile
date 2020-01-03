@@ -7,6 +7,7 @@ import Case from "../components/Case";
 import Reject from "../components/Reject";
 import _ from "lodash";
 import Case2 from "../components/Case2";
+import Case3 from "../components/Case3";
 
 function Routes() {
     return (
@@ -48,6 +49,14 @@ function Routes() {
                         />
                     </Scene>
                     <Scene key="tab2" title="Caso Parte 2">
+                        <Scene
+                            key="caso"
+                            component={Case3}
+                            headerLayoutPreset="center"
+                            initial
+                        />
+                    </Scene>
+                    <Scene key="tab3" title="Caso Parte 3">
                         <Scene
                             key="caso"
                             component={Case}

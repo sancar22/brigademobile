@@ -13,15 +13,7 @@ import * as Permissions from "expo-permissions";
 import * as firebase from "firebase";
 import { Notifications, Alert } from "expo";
 import { useSelector, useDispatch } from "react-redux";
-import {
-    notifshow,
-    fillPlace,
-    fillCode,
-    fillCategory,
-    fillDescription,
-    fillInfo,
-    fillDate
-} from "../actions/index";
+import { notifshow, fillAll, fillInfo } from "../actions/index";
 import _ from "lodash";
 import fb from "../routes/ConfigFire";
 import NotificationContainer from "./NotificationContainer";
@@ -163,12 +155,7 @@ function About() {
                                 ) // Para updatear la variable de Redux de caso
                                 .once("value", snapshot => {
                                     const caseInfo = snapshot.val();
-                                    dispatch(fillPlace(caseInfo.lugar));
-                                    dispatch(fillCode(caseInfo.codigo));
-                                    dispatch(
-                                        fillDescription(caseInfo.descripcion)
-                                    );
-                                    dispatch(fillCategory(caseInfo.categoria));
+                                    dispatch(fillAll(caseInfo));
                                 });
                             firebase
                                 .database()
@@ -211,9 +198,9 @@ function About() {
             {infoUser.notif ? (
                 <NotificationContainer
                     codigo={caso.codigo}
-                    lugarEmergencia={caso.lugarEmergencia}
+                    lugar={caso.lugar}
                     categoria={caso.categoria}
-                    descAdicional={caso.descAdicional}
+                    descripcion={caso.descripcion}
                     rejectCase={rejectCase}
                     acceptCase={acceptCase}
                     button={true}
