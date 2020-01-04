@@ -4,6 +4,7 @@ import NotificationContainer from "./NotificationContainer";
 import { useSelector, useDispatch } from "react-redux";
 import * as firebase from "firebase";
 import { fillAll } from "../actions/index";
+import fb from "../routes/ConfigFire";
 function Case2(props) {
     const dispatch = useDispatch();
     let currentUser = firebase

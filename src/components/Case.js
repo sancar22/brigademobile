@@ -10,7 +10,7 @@ import { Notifications } from "expo";
 function Case() {
     const infoUser = useSelector(state => state.info);
     const [webToken, setWebToken] = useState("");
-
+    const caso = useSelector(state => state.case);
     let currentUser = firebase
         .auth()
         .currentUser.email.toString()
@@ -27,6 +27,7 @@ function Case() {
     const back = () => {
         fb.closeCase(currentUser);
         fb.updateBusy(currentUser);
+        fb.updateTimer(caso.date, currentUser, infoUser);
         Actions.replace("about");
     };
 

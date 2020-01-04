@@ -350,7 +350,19 @@ class Firebase {
                     });
             });
     }
-
+    updateTimer(date, currentUser, infoUser) {
+        let a = new Date();
+        let b = Math.round((a - date) / 1000);
+        let c = new Date(b * 1000).toISOString().substr(11, 8);
+        firebase
+            .database()
+            .ref(
+                "Casos/" + currentUser + (infoUser.receivedNotif - 1).toString()
+            )
+            .update({
+                formatTime: c
+            });
+    }
     updateBusy(currentUser) {
         firebase
             .database()
