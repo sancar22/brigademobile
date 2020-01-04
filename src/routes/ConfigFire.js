@@ -89,6 +89,15 @@ class Firebase {
             });
     }
 
+    updateAdditionalInfo(val, currentUser, infoUser) {
+        firebase
+            .database()
+            .ref(
+                "Casos/" + currentUser + (infoUser.receivedNotif - 1).toString()
+            )
+            .update({ descBrigadista: val });
+    }
+
     handleAcceptCase(currentUser) {
         firebase
             .database()
@@ -195,7 +204,14 @@ class Firebase {
         let ref = firebase
             .storage()
             .ref()
-            .child("caseImages/" + imageName)
+            .child(
+                "caseImages/" +
+                    currentUser +
+                    "/" +
+                    (infoUser.receivedNotif - 1).toString() +
+                    "/" +
+                    imageName
+            )
             .put(blob);
         ref.on(
             "state_changed",
@@ -211,7 +227,13 @@ class Firebase {
                 firebase
                     .storage()
                     .ref("caseImages/")
-                    .child(imageName)
+                    .child(
+                        currentUser +
+                            "/" +
+                            (infoUser.receivedNotif - 1).toString() +
+                            "/" +
+                            imageName
+                    )
                     .getDownloadURL()
                     .then(url => {
                         firebase
@@ -235,7 +257,14 @@ class Firebase {
         let ref = firebase
             .storage()
             .ref()
-            .child("caseImages/" + imageName)
+            .child(
+                "caseImages/" +
+                    currentUser +
+                    "/" +
+                    (infoUser.receivedNotif - 1).toString() +
+                    "/" +
+                    imageName
+            )
             .put(blob);
         ref.on(
             "state_changed",
@@ -251,7 +280,13 @@ class Firebase {
                 firebase
                     .storage()
                     .ref("caseImages/")
-                    .child(imageName)
+                    .child(
+                        currentUser +
+                            "/" +
+                            (infoUser.receivedNotif - 1).toString() +
+                            "/" +
+                            imageName
+                    )
                     .getDownloadURL()
                     .then(url => {
                         firebase

@@ -6,7 +6,8 @@ import {
     Button,
     Image,
     StyleSheet,
-    Alert
+    Alert,
+    KeyboardAvoidingView
 } from "react-native";
 
 import { Actions } from "react-native-router-flux";
@@ -15,8 +16,8 @@ import { useSelector, useDispatch } from "react-redux";
 import fb from "../routes/ConfigFire";
 import * as ImagePicker from "expo-image-picker";
 import * as Permissions from "expo-permissions";
-import { Camera } from "expo-camera";
-import { CardSwiper } from "native-base";
+import Textarea from "react-native-textarea";
+import { calcWidth, calcHeight } from "../HelpFunctions";
 
 function Case3() {
     const caso = useSelector(state => state.case);
@@ -26,6 +27,7 @@ function Case3() {
         .split(".")[0];
     const infoUser = useSelector(state => state.info);
     const [webToken, setWebToken] = useState("");
+    const [textArea, setTextArea] = useState("");
     useEffect(() => {
         getFBInfo();
         cameraPermissions();
@@ -154,8 +156,20 @@ function Case3() {
         fb.sendWebNotification(webToken, infoUser, genero, objeto);
     };
 
+    const handleText = val => {
+        fb.updateAdditionalInfo(val, currentUser, infoUser);
+        setTextArea(val);
+    };
     return (
-        <View style={{ flex: 1 }}>
+        <KeyboardAvoidingView
+            style={{
+                flex: 1,
+                backgroundColor: "white",
+                justifyContent: "flex-end"
+            }}
+            behavior="padding"
+            enabled
+        >
             <Text
                 style={{
                     textAlign: "center",
@@ -228,7 +242,18 @@ function Case3() {
                     />
                 </TouchableOpacity>
             </View>
-        </View>
+            <Text style={styles.text}>Descripción Adicional</Text>
+            <Textarea
+                containerStyle={styles.textareaContainer}
+                style={styles.textarea}
+                onChangeText={val => handleText(val)}
+                defaultValue={caso.descBrigadista}
+                maxLength={1000}
+                placeholder={""}
+                placeholderTextColor={"#c7c7c7"}
+                underlineColorAndroid={"transparent"}
+            />
+        </KeyboardAvoidingView>
     );
 }
 
@@ -250,6 +275,20 @@ const styles = StyleSheet.create({
         height: 70,
         borderWidth: 3,
         borderColor: "black"
+    },
+    textareaContainer: {
+        height: calcHeight(30),
+        padding: calcHeight(1),
+        width: calcWidth(95),
+        marginLeft: calcWidth(2.5),
+        borderRadius: 10,
+        backgroundColor: "#F5FCFF"
+    },
+    textarea: {
+        textAlignVertical: "top",
+        height: 170,
+        fontSize: 14,
+        color: "#333"
     }
 });
 
