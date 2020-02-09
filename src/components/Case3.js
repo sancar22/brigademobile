@@ -16,7 +16,7 @@ import { useSelector, useDispatch } from "react-redux";
 import fb from "../routes/ConfigFire";
 import * as ImagePicker from "expo-image-picker";
 import * as Permissions from "expo-permissions";
-import Textarea from "react-native-textarea";
+
 import { calcWidth, calcHeight } from "../HelpFunctions";
 
 function Case3() {
@@ -27,7 +27,7 @@ function Case3() {
         .split(".")[0];
     const infoUser = useSelector(state => state.info);
     const [webToken, setWebToken] = useState("");
-    const [textArea, setTextArea] = useState("");
+
     useEffect(() => {
         getFBInfo();
         cameraPermissions();
@@ -122,53 +122,149 @@ function Case3() {
             { cancelable: false }
         );
     };
-    const ambulancia = () => {
-        const genero = "una";
-        const ambu = "ambulancia";
-        fb.requestAmb(currentUser, infoUser);
-        pushWeb(ambu, genero);
-    };
-    const apoyo = () => {
-        const genero = "un";
-        const apo = "apoyo";
-        fb.requestApoyo(currentUser, infoUser);
-        pushWeb(apo, genero);
-    };
-    const policia = () => {
-        const genero = "un";
-        const poli = "policía";
-        fb.requestPol(currentUser, infoUser);
-        pushWeb(poli, genero);
-    };
-    const bombero = () => {
-        const genero = "un";
-        const bomb = "bombero";
-        fb.requestBom(currentUser, infoUser);
-        pushWeb(bomb, genero);
-    };
-    const camilla = () => {
-        const genero = "una";
-        const camill = "camilla";
-        fb.requestCam(currentUser, infoUser);
-        pushWeb(camill, genero);
-    };
-    const pushWeb = (objeto, genero) => {
-        fb.sendWebNotification(webToken, infoUser, genero, objeto);
+
+    const confDEA = () => {
+        Alert.alert(
+            "Solicitud de Apoyo",
+            "¿Está seguro que desea pedir un desfibrilador?",
+            [{ text: "NO" }, { text: "SÍ", onPress: DEA }],
+            { cancelable: false }
+        );
     };
 
-    const handleText = val => {
-        fb.updateAdditionalInfo(val, currentUser, infoUser);
-        setTextArea(val);
+    const confSillaRuedas = () => {
+        Alert.alert(
+            "Solicitud de Apoyo",
+            "¿Está seguro que desea pedir una silla de ruedas?",
+            [{ text: "NO" }, { text: "SÍ", onPress: sillaRueda }],
+            { cancelable: false }
+        );
     };
+
+    const confDefCivil = () => {
+        Alert.alert(
+            "Solicitud de Apoyo",
+            "¿Está seguro que desea pedir apoyo de la Defensa Civil?",
+            [{ text: "NO" }, { text: "SÍ", onPress: defCivil }],
+            { cancelable: false }
+        );
+    };
+
+    const confCruzRoja = () => {
+        Alert.alert(
+            "Solicitud de Apoyo",
+            "¿Está seguro que desea pedir apoyo de la Cruz Roja?",
+            [{ text: "NO" }, { text: "SÍ", onPress: cruzRoja }],
+            { cancelable: false }
+        );
+    };
+
+    const confBotiquin = () => {
+        Alert.alert(
+            "Solicitud de Apoyo",
+            "¿Está seguro que desea pedir un botiquín de primeros auxilios?",
+            [{ text: "NO" }, { text: "SÍ", onPress: botiquin }],
+            { cancelable: false }
+        );
+    };
+
+    const confMantenimiento = () => {
+        Alert.alert(
+            "Solicitud de Apoyo",
+            "¿Está seguro que desea pedir apoyo de Mantenimiento?",
+            [{ text: "NO" }, { text: "SÍ", onPress: mantenimiento }],
+            { cancelable: false }
+        );
+    };
+
+    const confCentroMedico = () => {
+        Alert.alert(
+            "Solicitud de Apoyo",
+            "¿Está seguro que desea pedir apoyo del Centro Médico?",
+            [{ text: "NO" }, { text: "SÍ", onPress: centroMedico }],
+            { cancelable: false }
+        );
+    };
+    const ambulancia = () => {
+        const ambu = "ambulancia";
+        fb.requestAmb(currentUser, infoUser);
+        pushWeb(ambu);
+    };
+    const apoyo = () => {
+        const apo = "apoyo";
+        fb.requestApoyo(currentUser, infoUser);
+        pushWeb(apo);
+    };
+    const policia = () => {
+        const poli = "policía";
+        fb.requestPol(currentUser, infoUser);
+        pushWeb(poli);
+    };
+    const bombero = () => {
+        const bomb = "bombero";
+        fb.requestBom(currentUser, infoUser);
+        pushWeb(bomb);
+    };
+    const camilla = () => {
+        const camill = "camilla";
+        fb.requestCam(currentUser, infoUser);
+        pushWeb(camill);
+    };
+
+    const botiquin = () => {
+        const botiq = "botiquín"; // Ojo tilde
+        fb.requestBotiquin(currentUser, infoUser);
+        pushWeb(botiq);
+    };
+
+    const defCivil = () => {
+        const defCivil = "Defensa Civil";
+        fb.requestDefCivil(currentUser, infoUser);
+        pushWeb(defCivil);
+    };
+
+    const cruzRoja = () => {
+        const cruzRoja = "Cruz Roja";
+        fb.requestCruzRoja(currentUser, infoUser);
+        pushWeb(cruzRoja);
+    };
+
+    const centroMedico = () => {
+        const centroMed = "Centro Médico";
+        fb.requestCentroMedico(currentUser, infoUser);
+        pushWeb(centroMed);
+    };
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    const sillaRueda = () => {
+        const sillaR = "silla de ruedas";
+        fb.requestSillaRuedas(currentUser, infoUser);
+        pushWeb(sillaR);
+    };
+
+    const mantenimiento = () => {
+        const mantenimiento = "Mantenimiento";
+        fb.requestMantenimiento(currentUser, infoUser);
+        pushWeb(mantenimiento);
+    };
+
+    const DEA = () => {
+        const DEA = "DEA";
+        fb.requestDEA(currentUser, infoUser);
+        pushWeb(DEA);
+    };
+
+    const pushWeb = objeto => {
+        fb.sendWebNotification(webToken, infoUser, objeto);
+    };
+
     return (
-        <KeyboardAvoidingView
+        <View
             style={{
                 flex: 1,
-                backgroundColor: "white",
-                justifyContent: "flex-end"
+                backgroundColor: "white"
             }}
-            behavior="padding"
-            enabled
         >
             <Text
                 style={{
@@ -201,17 +297,11 @@ function Case3() {
                     />
                 </TouchableOpacity>
             </View>
-            <Text style={styles.text}>Apoyos Disponibles</Text>
+            <Text style={styles.text}>Recursos Disponibles</Text>
             <View style={{ ...styles.photoContainer }}>
-                <TouchableOpacity onPress={confPolicia}>
-                    <Image
-                        style={styles.image}
-                        source={require("../../assets/police.png")}
-                    />
-                </TouchableOpacity>
                 <TouchableOpacity onPress={confAmbulancia}>
                     <Image
-                        style={styles.image}
+                        style={{ ...styles.image, width: 85 }}
                         source={require("../../assets/ambulance.png")}
                     />
                 </TouchableOpacity>
@@ -219,6 +309,12 @@ function Case3() {
                     <Image
                         style={styles.image}
                         source={require("../../assets/camilla.png")}
+                    />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={confSillaRuedas}>
+                    <Image
+                        style={styles.image}
+                        source={require("../../assets/sillarueda.png")}
                     />
                 </TouchableOpacity>
             </View>
@@ -229,10 +325,45 @@ function Case3() {
                         source={require("../../assets/extintor.png")}
                     />
                 </TouchableOpacity>
+                <TouchableOpacity onPress={confDEA}>
+                    <Image
+                        style={{ ...styles.image, height: 90 }}
+                        source={require("../../assets/dea.png")}
+                    />
+                </TouchableOpacity>
                 <TouchableOpacity onPress={confApoyo}>
                     <Image
                         style={styles.image}
-                        source={require("../../assets/apoyo.png")}
+                        source={require("../../assets/logoBrigada.png")}
+                    />
+                </TouchableOpacity>
+            </View>
+            <View
+                style={{
+                    ...styles.photoContainer,
+                    justifyContent: "flex-start",
+                    paddingLeft: 35
+                }}
+            >
+                <TouchableOpacity onPress={confBotiquin}>
+                    <Image
+                        style={styles.image}
+                        source={require("../../assets/botiquin.png")}
+                    />
+                </TouchableOpacity>
+            </View>
+            <Text style={styles.text}>Apoyos Externos Disponibles</Text>
+            <View style={{ ...styles.photoContainer }}>
+                <TouchableOpacity onPress={confPolicia}>
+                    <Image
+                        style={styles.image}
+                        source={require("../../assets/police.png")}
+                    />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={confDefCivil}>
+                    <Image
+                        style={styles.image}
+                        source={require("../../assets/defciv.png")}
                     />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={confBombero}>
@@ -242,18 +373,27 @@ function Case3() {
                     />
                 </TouchableOpacity>
             </View>
-            <Text style={styles.text}>Descripción Adicional</Text>
-            <Textarea
-                containerStyle={styles.textareaContainer}
-                style={styles.textarea}
-                onChangeText={val => handleText(val)}
-                defaultValue={caso.descBrigadista}
-                maxLength={1000}
-                placeholder={""}
-                placeholderTextColor={"#c7c7c7"}
-                underlineColorAndroid={"transparent"}
-            />
-        </KeyboardAvoidingView>
+            <View style={styles.photoContainer}>
+                <TouchableOpacity onPress={confCruzRoja}>
+                    <Image
+                        style={styles.image}
+                        source={require("../../assets/cruzroja.png")}
+                    />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={confMantenimiento}>
+                    <Image
+                        style={styles.image}
+                        source={require("../../assets/mantenimiento.png")}
+                    />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={confCentroMedico}>
+                    <Image
+                        style={styles.image}
+                        source={require("../../assets/centromedico.png")}
+                    />
+                </TouchableOpacity>
+            </View>
+        </View>
     );
 }
 
@@ -267,14 +407,12 @@ const styles = StyleSheet.create({
     text: {
         textAlign: "center",
         fontWeight: "bold",
-        paddingTop: 20,
-        paddingBottom: 10
+        paddingTop: 10,
+        paddingBottom: 7
     },
     image: {
         width: 70,
-        height: 70,
-        borderWidth: 3,
-        borderColor: "black"
+        height: 70
     },
     textareaContainer: {
         height: calcHeight(30),

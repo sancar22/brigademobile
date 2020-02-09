@@ -44,7 +44,7 @@ class Firebase {
             });
     }
 
-    sendWebNotification(webToken, infoUser, genero, objeto) {
+    sendWebNotification(webToken, infoUser, objeto) {
         const PUSH_ENDPOINT = "https://fcm.googleapis.com/fcm/send";
         let key =
             "AAAAppNbUYM:APA91bFd8gfd0fq0Jq8Crskxl5Ah4abkpQUmtrUjsTIQ17nsPK_jvb07JSvvNcBpNpFU_d3yjpR0KtMgRqHQRJpOUMN4iAsQNT7qjRzRmzr5bkUM7uF8M165De9OuYqrUhBmLoeCDImp";
@@ -52,8 +52,8 @@ class Firebase {
         let notification = {
             body: `El brigadista ${infoUser.nombre +
                 " " +
-                infoUser.apellido} requiere  ${genero + " " + objeto}.`,
-            objeto: `${objeto}`,
+                infoUser.apellido} requiere: ${objeto}.`,
+            objeto: `${objeto.replace(/ /g, "")}`,
             click_action: "http://localhost:3000",
             requireInteraction: true
         };
@@ -189,6 +189,24 @@ class Firebase {
             )
             .update({ bombero: true });
     }
+
+    requestMantenimiento(currentUser, infoUser) {
+        firebase
+            .database()
+            .ref(
+                "Casos/" + currentUser + (infoUser.receivedNotif - 1).toString()
+            )
+            .update({ mantenimiento: true });
+    }
+
+    requestCentroMedico(currentUser, infoUser) {
+        firebase
+            .database()
+            .ref(
+                "Casos/" + currentUser + (infoUser.receivedNotif - 1).toString()
+            )
+            .update({ centromedico: true });
+    }
     requestAmb(currentUser, infoUser) {
         firebase
             .database()
@@ -196,6 +214,51 @@ class Firebase {
                 "Casos/" + currentUser + (infoUser.receivedNotif - 1).toString()
             )
             .update({ ambulancia: true });
+    }
+
+    requestBotiquin(currentUser, infoUser) {
+        firebase
+            .database()
+            .ref(
+                "Casos/" + currentUser + (infoUser.receivedNotif - 1).toString()
+            )
+            .update({ botiquin: true });
+    }
+
+    requestDefCivil(currentUser, infoUser) {
+        firebase
+            .database()
+            .ref(
+                "Casos/" + currentUser + (infoUser.receivedNotif - 1).toString()
+            )
+            .update({ defcivil: true });
+    }
+
+    requestCruzRoja(currentUser, infoUser) {
+        firebase
+            .database()
+            .ref(
+                "Casos/" + currentUser + (infoUser.receivedNotif - 1).toString()
+            )
+            .update({ cruzroja: true });
+    }
+
+    requestDEA(currentUser, infoUser) {
+        firebase
+            .database()
+            .ref(
+                "Casos/" + currentUser + (infoUser.receivedNotif - 1).toString()
+            )
+            .update({ dea: true });
+    }
+
+    requestSillaRuedas(currentUser, infoUser) {
+        firebase
+            .database()
+            .ref(
+                "Casos/" + currentUser + (infoUser.receivedNotif - 1).toString()
+            )
+            .update({ sillaRueda: true });
     }
     async uploadCaseImages1(uri, imageName, currentUser, infoUser) {
         const response = await fetch(uri);

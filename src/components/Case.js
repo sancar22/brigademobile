@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
 import { Button } from "native-base";
 import { Actions } from "react-native-router-flux";
 import * as firebase from "firebase";
 import { useSelector, useDispatch } from "react-redux";
-import fb from "../routes/ConfigFire";
 import { Notifications } from "expo";
+import Textarea from "react-native-textarea";
+import fb from "../routes/ConfigFire";
+import { calcWidth, calcHeight } from "../HelpFunctions";
 
 function Case() {
+    const caso = useSelector(state => state.case);
     const infoUser = useSelector(state => state.info);
     const [webToken, setWebToken] = useState("");
-    const caso = useSelector(state => state.case);
+    const [textArea, setTextArea] = useState("");
+
     let currentUser = firebase
         .auth()
         .currentUser.email.toString()
@@ -31,8 +35,24 @@ function Case() {
         Actions.replace("about");
     };
 
+    const handleText = val => {
+        fb.updateAdditionalInfo(val, currentUser, infoUser);
+        setTextArea(val);
+    };
+
     return (
         <View>
+            <Text style={styles.text}>Descripción Adicional</Text>
+            <Textarea
+                containerStyle={styles.textareaContainer}
+                style={styles.textarea}
+                onChangeText={val => handleText(val)}
+                defaultValue={caso.descBrigadista}
+                maxLength={1000}
+                placeholder={""}
+                placeholderTextColor={"#c7c7c7"}
+                underlineColorAndroid={"transparent"}
+            />
             <Button
                 style={{ marginTop: 30 }} // Login button
                 full
@@ -40,10 +60,32 @@ function Case() {
                 success
                 onPress={back}
             >
-                <Text>Devolverse</Text>
+                <Text>CASO ATENDIDO</Text>
             </Button>
         </View>
     );
 }
+const styles = StyleSheet.create({
+    text: {
+        textAlign: "center",
+        fontWeight: "bold",
+        paddingTop: 20,
+        paddingBottom: 10
+    },
 
+    textareaContainer: {
+        height: calcHeight(30),
+        padding: calcHeight(1),
+        width: calcWidth(95),
+        marginLeft: calcWidth(2.5),
+        borderRadius: 10,
+        backgroundColor: "#F5FCFF"
+    },
+    textarea: {
+        textAlignVertical: "top",
+        height: 170,
+        fontSize: 14,
+        color: "#333"
+    }
+});
 export default Case;
