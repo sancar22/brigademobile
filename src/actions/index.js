@@ -26,6 +26,13 @@ export const fillCategory = info => {
     };
 };
 
+export const selectAllOnline = info => {
+    return {
+        type: "SELECT_ALL_ONLINE",
+        payload: info
+    };
+};
+
 export const fillDate = info => {
     return {
         type: "FILL_DATE",

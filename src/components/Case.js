@@ -8,13 +8,35 @@ import { Notifications } from "expo";
 import Textarea from "react-native-textarea";
 import fb from "../routes/ConfigFire";
 import { calcWidth, calcHeight } from "../HelpFunctions";
+import { CheckBox } from "react-native-elements";
 
 function Case() {
     const caso = useSelector(state => state.case);
     const infoUser = useSelector(state => state.info);
-    const [webToken, setWebToken] = useState("");
-    const [textArea, setTextArea] = useState("");
+    const allInfo = useSelector(state => state.allInfo);
+    const vinculatedBrigaders = allInfo.filter(
+        info => info.apoyandoEmail === infoUser.Email.split(".")[0]
+    );
+    const checkBoxContainer = vinculatedBrigaders.map(item => {
+        return (
+            <CheckBox
+                title={item.nombre + " " + item.apellido}
+                checked={item.trulyHelped}
+                onPress={() =>
+                    changeHelped(item.Email.split(".")[0], item.trulyHelped)
+                }
+            />
+        );
+    });
+    const changeHelped = (email, trulyHelped) => {
+        firebase
+            .database()
+            .ref("Users/" + email)
+            .update({ trulyHelped: !trulyHelped });
+    };
 
+    const [textArea, setTextArea] = useState("");
+    console.log(allInfo);
     let currentUser = firebase
         .auth()
         .currentUser.email.toString()
@@ -32,6 +54,7 @@ function Case() {
         fb.closeCase(currentUser);
         fb.updateBusy(currentUser);
         fb.updateTimer(caso.date, currentUser, infoUser);
+        fb.removeHelper(vinculatedBrigaders, currentUser, infoUser);
         Actions.replace("about");
     };
 
@@ -42,6 +65,9 @@ function Case() {
 
     return (
         <View>
+            <Text style={styles.text}>Apoyos Brigadistas: </Text>
+
+            {checkBoxContainer.length > 0 && checkBoxContainer}
             <Text style={styles.text}>Descripción Adicional</Text>
             <Textarea
                 containerStyle={styles.textareaContainer}

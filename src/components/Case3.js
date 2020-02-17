@@ -16,6 +16,7 @@ import { useSelector, useDispatch } from "react-redux";
 import fb from "../routes/ConfigFire";
 import * as ImagePicker from "expo-image-picker";
 import * as Permissions from "expo-permissions";
+import DialogInput from "react-native-dialog-input";
 
 import { calcWidth, calcHeight } from "../HelpFunctions";
 
@@ -27,6 +28,7 @@ function Case3() {
         .split(".")[0];
     const infoUser = useSelector(state => state.info);
     const [webToken, setWebToken] = useState("");
+    const [dialogueSeen, setDialogueSeen] = useState(false);
 
     useEffect(() => {
         getFBInfo();
@@ -110,7 +112,7 @@ function Case3() {
         Alert.alert(
             "Solicitud de Apoyo",
             "¿Está seguro que desea pedir apoyo de otros brigadistas?",
-            [{ text: "NO" }, { text: "SÍ", onPress: apoyo }],
+            [{ text: "NO" }, { text: "SÍ", onPress: changeDialogueSeen }],
             { cancelable: false }
         );
     };
@@ -185,15 +187,29 @@ function Case3() {
             { cancelable: false }
         );
     };
+
+    const changeDialogueSeen = () => {
+        setDialogueSeen(true);
+    };
     const ambulancia = () => {
         const ambu = "ambulancia";
         fb.requestAmb(currentUser, infoUser);
         pushWeb(ambu);
     };
-    const apoyo = () => {
-        const apo = "apoyo";
-        fb.requestApoyo(currentUser, infoUser);
-        pushWeb(apo);
+    const apoyo = inputText => {
+        if (!isNaN(inputText)) {
+            const parsedInputText = parseInt(inputText);
+            if (parsedInputText > 0) {
+                fb.requestApoyo(currentUser, infoUser, parsedInputText);
+                const apo = "apoyo";
+                pushWeb2(apo, parsedInputText);
+                setDialogueSeen(false);
+            } else {
+                alert("Coloque un número mayor a cero.");
+            }
+        } else {
+            alert("No ingresó un número.");
+        }
     };
     const policia = () => {
         const poli = "policía";
@@ -259,6 +275,10 @@ function Case3() {
         fb.sendWebNotification(webToken, infoUser, objeto);
     };
 
+    const pushWeb2 = (objeto, cantidad) => {
+        fb.sendWebNotification2(webToken, infoUser, objeto, cantidad);
+    };
+
     return (
         <View
             style={{
@@ -266,6 +286,20 @@ function Case3() {
                 backgroundColor: "white"
             }}
         >
+            {dialogueSeen && (
+                <DialogInput
+                    isDialogVisible={dialogueSeen}
+                    title={"Solicitud Apoyo de Brigadistas"}
+                    message={"Indique el número de brigadistas que requiere:"}
+                    hintInput={"Escriba un número"}
+                    submitInput={inputText => {
+                        apoyo(inputText);
+                    }}
+                    closeDialog={() => {
+                        setDialogueSeen(false);
+                    }}
+                ></DialogInput>
+            )}
             <Text
                 style={{
                     textAlign: "center",

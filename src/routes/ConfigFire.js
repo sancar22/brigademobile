@@ -44,6 +44,38 @@ class Firebase {
             });
     }
 
+    sendWebNotification2(webToken, infoUser, objeto, cant) {
+        const PUSH_ENDPOINT = "https://fcm.googleapis.com/fcm/send";
+        let key =
+            "AAAAppNbUYM:APA91bFd8gfd0fq0Jq8Crskxl5Ah4abkpQUmtrUjsTIQ17nsPK_jvb07JSvvNcBpNpFU_d3yjpR0KtMgRqHQRJpOUMN4iAsQNT7qjRzRmzr5bkUM7uF8M165De9OuYqrUhBmLoeCDImp";
+        let to = webToken;
+        let notification = {
+            body: `El brigadista ${infoUser.nombre +
+                " " +
+                infoUser.apellido} requiere el apoyo de ${cant} brigadista/s.`,
+            objeto: `${objeto.replace(/ /g, "")}`,
+            click_action: "http://localhost:3000",
+            requireInteraction: true
+        };
+        fetch(PUSH_ENDPOINT, {
+            method: "POST",
+            headers: {
+                Authorization: "key=" + key,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                data: notification,
+                to: to
+            })
+        })
+            .catch(err => {
+                alert(`Error en solicitud de ${objeto}. Vuelva a intentarlo.`);
+            })
+            .then(() => {
+                alert(`Objeto: ${objeto} solicitad@`);
+            });
+    }
+
     sendWebNotification(webToken, infoUser, objeto) {
         const PUSH_ENDPOINT = "https://fcm.googleapis.com/fcm/send";
         let key =
@@ -127,6 +159,48 @@ class Firebase {
             });
     }
 
+    removeHelper(vinculatedBrigaders, currentUser, infoUser) {
+        const reallyHelped = vinculatedBrigaders
+            .filter(item => item.trulyHelped === true)
+            .map(brigade => {
+                const newHelpDid = brigade.helpdid + 1;
+                firebase
+                    .database()
+                    .ref("Users/" + brigade.Email.split(".")[0])
+                    .update({
+                        apoyandoEmail: "",
+                        apoyandoNotifRec: 0,
+                        helpOcupado: false,
+                        trulyHelped: false,
+                        helpdid: newHelpDid
+                    });
+            });
+        const helped = vinculatedBrigaders.filter(
+            item => item.trulyHelped === true
+        );
+        firebase
+            .database()
+            .ref(
+                "Casos/" + currentUser + (infoUser.receivedNotif - 1).toString()
+            )
+            .update({ helpArray: helped });
+        const didntHelp = vinculatedBrigaders
+            .filter(item => item.trulyHelped === false)
+            .map(brigade => {
+                const newHelpDidnt = brigade.helpdidnt + 1;
+                firebase
+                    .database()
+                    .ref("Users/" + brigade.Email.split(".")[0])
+                    .update({
+                        apoyandoEmail: "",
+                        apoyandoNotifRec: 0,
+                        helpOcupado: false,
+                        trulyHelped: false,
+                        helpdidnt: newHelpDidnt
+                    });
+            });
+    }
+
     fillTextArea(currentUser, textArea) {
         firebase
             .database()
@@ -173,13 +247,18 @@ class Firebase {
             )
             .update({ policia: true });
     }
-    requestApoyo(currentUser, infoUser) {
+    requestApoyo(currentUser, infoUser, inputText) {
         firebase
             .database()
             .ref(
                 "Casos/" + currentUser + (infoUser.receivedNotif - 1).toString()
             )
-            .update({ apoyo: true });
+            .update({ apoyo: true, apoyoReq: inputText });
+
+        firebase
+            .database()
+            .ref("Users/" + currentUser)
+            .update({ requestedHelp: inputText });
     }
     requestBom(currentUser, infoUser) {
         firebase
@@ -430,7 +509,7 @@ class Firebase {
         firebase
             .database()
             .ref("Users/" + currentUser)
-            .update({ ocupado: false });
+            .update({ ocupado: false, requestedHelp: 0 });
     }
 }
 

@@ -13,17 +13,24 @@ import * as Permissions from "expo-permissions";
 import * as firebase from "firebase";
 import { Notifications, Alert } from "expo";
 import { useSelector, useDispatch } from "react-redux";
-import { notifshow, fillAll, fillInfo } from "../actions/index";
+import {
+    notifshow,
+    fillAll,
+    fillInfo,
+    selectAllOnline
+} from "../actions/index";
 import _ from "lodash";
 import fb from "../routes/ConfigFire";
 import NotificationContainer from "./NotificationContainer";
 import * as Location from "expo-location";
+import HelpContainer from "./HelpContainer";
 
 function About() {
     const infoUser = useSelector(state => state.info);
     const caso = useSelector(state => state.case);
     const [sound, setSound] = useState(null);
     const [location, setLocation] = useState(null);
+    const [tempData, setTempData] = useState(null);
     const dispatch = useDispatch();
     let currentUser = firebase
         .auth()
@@ -37,11 +44,14 @@ function About() {
     });
     if (infoUser.ocupado) {
         Actions.replace("caso");
+    } else if (infoUser.helpOcupado) {
+        Actions.replace("help");
     }
     useEffect(() => {
         console.log("Mounted About");
         initializer();
         register();
+        getAllInformation();
         this.listener = Notifications.addListener(listen);
 
         Audio.setAudioModeAsync({
@@ -61,6 +71,17 @@ function About() {
         };
     }, []);
 
+    const getAllInformation = () => {
+        return firebase
+            .database()
+            .ref("/Users")
+            .orderByChild("online")
+            .equalTo(true)
+            .on("value", snapshot => {
+                const firebaseData = _.toArray(snapshot.val());
+                dispatch(selectAllOnline(firebaseData)); // Se hace un dispatch a la store para guardarlo en el estado global
+            });
+    };
     const getPermissionsAsync = async () => {
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
         if (status !== "granted") {
@@ -120,7 +141,7 @@ function About() {
         console.log(origin, data);
 
         if (origin === "received") {
-            if (data.id !== "1") {
+            if (data.id !== "1" && data.apoyo !== "1") {
                 Vibration.vibrate(10000);
                 try {
                     const {
@@ -164,9 +185,32 @@ function About() {
                             // se updatea +1
                         }
                     });
-            } else {
+            } else if (data.id === "1") {
                 Vibration.vibrate(3000);
                 Alert.alert(data.name);
+            } else if (data.apoyo === "1") {
+                Vibration.vibrate(10000);
+                try {
+                    const {
+                        sound: soundObject,
+                        status
+                    } = await Audio.Sound.createAsync(
+                        {
+                            uri:
+                                "https://firebasestorage.googleapis.com/v0/b/brigadaun.appspot.com/o/audios%2Falarm.wav?alt=media&token=a2c80767-bae0-47b8-8dae-3b1a7af590df"
+                        },
+                        { shouldPlay: true }
+                    );
+                    setSound(soundObject);
+                } catch (error) {
+                    console.log(error);
+                }
+                dispatch(fillAll(data.infoCaso));
+                firebase
+                    .database()
+                    .ref("Users/" + currentUser)
+                    .update({ help: true });
+                setTempData(data);
             }
         }
     };
@@ -193,6 +237,25 @@ function About() {
         Actions.replace("caso"); // Si acepta se va a la ventana de casos
     };
 
+    const rejectHelp = () => {
+        firebase
+            .database()
+            .ref("Users/" + currentUser)
+            .update({ help: false });
+    };
+    const acceptHelp = () => {
+        firebase
+            .database()
+            .ref("Users/" + currentUser)
+            .update({
+                help: true,
+                apoyandoNotifRec: tempData.notifReceived,
+                apoyandoEmail: tempData.infoCaso.Email,
+                helpOcupado: true
+            });
+        Actions.replace("help");
+    };
+
     return (
         <View style={{ flex: 1 }}>
             {infoUser.notif ? (
@@ -203,6 +266,18 @@ function About() {
                     descripcion={caso.descripcion}
                     rejectCase={rejectCase}
                     acceptCase={acceptCase}
+                    button={true}
+                />
+            ) : infoUser.help ? (
+                <HelpContainer
+                    codigo={caso.codigo}
+                    lugar={caso.lugar}
+                    categoria={caso.categoria}
+                    descripcion={caso.descripcion}
+                    nombre={caso.nombre}
+                    apellido={caso.apellido}
+                    rejectCase={rejectHelp}
+                    acceptCase={acceptHelp}
                     button={true}
                 />
             ) : (

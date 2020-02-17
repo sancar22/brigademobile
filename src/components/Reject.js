@@ -10,16 +10,16 @@ import fb from "../routes/ConfigFire";
 const mockData = [
     {
         label: "Reunión importante",
-        value: "fi",
+        value: "fi"
     },
     {
         label: "Atendiendo otra situación",
-        value: "se",
+        value: "se"
     },
     {
         label: "Otra:",
-        value: "th",
-    },
+        value: "th"
+    }
 ];
 
 function Reject() {
@@ -102,7 +102,7 @@ function Reject() {
                     <TouchableOpacity
                         style={{
                             ...styles.touchOpBut,
-                            backgroundColor: "green",
+                            backgroundColor: "green"
                         }}
                         onPress={submitReason}
                     >
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 30,
         justifyContent: "center",
-        alignItems: "center",
+        alignItems: "center"
     },
     textareaContainer: {
         height: calcHeight(30),
@@ -127,19 +127,19 @@ const styles = StyleSheet.create({
         width: calcWidth(95),
         marginLeft: calcWidth(2.5),
         borderRadius: 10,
-        backgroundColor: "#F5FCFF",
+        backgroundColor: "#F5FCFF"
     },
     textarea: {
         textAlignVertical: "top",
         height: 170,
         fontSize: 14,
-        color: "#333",
+        color: "#333"
     },
     button: {
         color: "white",
         fontWeight: "bold",
         textAlign: "center",
-        paddingVertical: 13,
+        paddingVertical: 13
     },
     touchOpBut: {
         flexDirection: "column",
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
         top: calcHeight(3),
         position: "relative",
         borderRadius: 10,
-        left: calcWidth(35),
-    },
+        left: calcWidth(35)
+    }
 });
 export default Reject;

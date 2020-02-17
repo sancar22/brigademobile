@@ -1,5 +1,5 @@
 import React from "react";
-import { Router, Scene } from "react-native-router-flux";
+import { Router, Scene, Drawer } from "react-native-router-flux";
 import Home from "../components/Home";
 import About from "../components/About";
 import ForgotPassWord from "../components/ForgotPassWord";
@@ -8,6 +8,7 @@ import Reject from "../components/Reject";
 import _ from "lodash";
 import Case2 from "../components/Case2";
 import Case3 from "../components/Case3";
+import HelpCase from "../components/HelpCase";
 
 function Routes() {
     return (
@@ -26,6 +27,8 @@ function Routes() {
                     component={ForgotPassWord}
                     title="Password Forget"
                 />
+                <Scene key="help" component={HelpCase} title="Help Case" />
+
                 <Scene
                     key="caso"
                     tabs
