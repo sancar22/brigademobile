@@ -51,7 +51,7 @@ function Routes() {
                             initial
                         />
                     </Scene>
-                    <Scene key="tab2" title="Caso Parte 2">
+                    <Scene key="tab2" title="Apoyos">
                         <Scene
                             key="caso"
                             component={Case3}
@@ -59,7 +59,7 @@ function Routes() {
                             initial
                         />
                     </Scene>
-                    <Scene key="tab3" title="Caso Parte 3">
+                    <Scene key="tab3" title="Resumen">
                         <Scene
                             key="caso"
                             component={Case}

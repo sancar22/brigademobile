@@ -7,7 +7,8 @@ import {
     Image,
     StyleSheet,
     Alert,
-    KeyboardAvoidingView
+    KeyboardAvoidingView,
+    ScrollView
 } from "react-native";
 
 import { Actions } from "react-native-router-flux";
@@ -280,7 +281,7 @@ function Case3() {
     };
 
     return (
-        <View
+        <ScrollView
             style={{
                 flex: 1,
                 backgroundColor: "white"
@@ -427,7 +428,7 @@ function Case3() {
                     />
                 </TouchableOpacity>
             </View>
-        </View>
+        </ScrollView>
     );
 }
 

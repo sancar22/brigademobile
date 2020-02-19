@@ -6,7 +6,8 @@ import {
     StyleSheet,
     Button,
     Vibration,
-    TouchableOpacity
+    TouchableOpacity,
+    Image
 } from "react-native";
 import { Actions } from "react-native-router-flux";
 import * as Permissions from "expo-permissions";
@@ -24,6 +25,7 @@ import fb from "../routes/ConfigFire";
 import NotificationContainer from "./NotificationContainer";
 import * as Location from "expo-location";
 import HelpContainer from "./HelpContainer";
+import { calcWidth, calcHeight } from "../HelpFunctions";
 
 function About() {
     const infoUser = useSelector(state => state.info);
@@ -281,13 +283,40 @@ function About() {
                     button={true}
                 />
             ) : (
-                <View style={{ position: "relative", top: 500 }}>
-                    <Button
-                        full
-                        rounded
-                        success
-                        title="logout"
-                        onPress={() => signOutUser()}
+                <View style={{ position: "relative", display: "flex" }}>
+                    <View
+                        style={{
+                            backgroundColor: "white",
+                            paddingTop: 20
+                        }}
+                    >
+                        <TouchableOpacity
+                            style={{
+                                width: 50,
+                                height: 50,
+                                left: calcWidth(85)
+                            }}
+                            onPress={signOutUser}
+                        >
+                            <Image
+                                source={require("../../assets/logouticon.png")}
+                                style={{
+                                    width: 50,
+                                    height: 50
+                                }}
+                            />
+                        </TouchableOpacity>
+                    </View>
+
+                    <Image
+                        style={{
+                            width: calcWidth(45),
+                            height: calcHeight(25),
+                            borderRadius: 100,
+                            left: calcWidth(25),
+                            top: 20
+                        }}
+                        source={{ uri: infoUser.imagen }}
                     />
                 </View>
             )}
@@ -295,6 +324,11 @@ function About() {
     );
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+    image: {
+        width: 100,
+        height: 100
+    }
+});
 
 export default About;
